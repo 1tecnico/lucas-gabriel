@@ -1,0 +1,321 @@
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+// --- Constantes ---
+const FIELD_WIDTH = canvas.width;
+const FIELD_HEIGHT = canvas.height;
+const GOAL_WIDTH = 160;
+const GOAL_HEIGHT = 80;
+const PLAYER_RADIUS = 18;
+const BALL_RADIUS = 10;
+const TEAM_SIZE = 12;
+const PLAYER_SPEED = 3.5;
+const DRIBBLE_SPEED = 7;
+const CHAPEU_VERTICAL_BOOST = 6;
+const FRICTION = 0.98;
+const BALL_FRICTION = 0.992;
+const AI_SPEED = 2.6;
+const KICK_POWER = 6;
+
+// --- Estado do Jogo ---
+let leftScore = 0;
+let rightScore = 0;
+
+// Times
+let teamA = [];
+let teamB = [];
+
+// Bola
+let ball = {
+    x: FIELD_WIDTH / 2,
+    y: FIELD_HEIGHT / 2,
+    z: 0, // Para chapéu
+    vz: 0,
+    vx: 0,
+    vy: 0,
+    lastTouch: null // 'A' ou 'B'
+};
+
+// --- Funções Auxiliares ---
+function dist(a, b) {
+    return Math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2);
+}
+
+// Inicializa times
+function initTeams() {
+    teamA = [];
+    teamB = [];
+    // Goleiro (índice 0)
+    teamA.push({x: 80, y: FIELD_HEIGHT/2, color: "#00A1FF", isGoleiro: true, isUser: false, vx: 0, vy: 0});
+    teamB.push({x: FIELD_WIDTH-80, y: FIELD_HEIGHT/2, color: "#FF2C2C", isGoleiro: true, isUser: false, vx: 0, vy: 0});
+    // Jogadores de linha
+    for (let i = 1; i < TEAM_SIZE; i++) {
+        teamA.push({
+            x: 120 + Math.random()*90,
+            y: 60 + i * ((FIELD_HEIGHT-120)/(TEAM_SIZE-1)),
+            color: "#00A1FF",
+            isGoleiro: false,
+            isUser: i === 6, // jogador 6 é o usuário
+            vx: 0, vy: 0
+        });
+        teamB.push({
+            x: FIELD_WIDTH-120 - Math.random()*90,
+            y: 60 + i * ((FIELD_HEIGHT-120)/(TEAM_SIZE-1)),
+            color: "#FF2C2C",
+            isGoleiro: false,
+            isUser: false,
+            vx: 0, vy: 0
+        });
+    }
+}
+
+// --- Controles ---
+let keys = {};
+document.addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
+document.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
+
+// --- Físico e Lógica ---
+// Movimento do usuário (jogador controlado)
+function moveUser() {
+    let user = teamA.find(j => j.isUser);
+    let speed = PLAYER_SPEED;
+    if (keys["shift"]) speed *= 1.5;
+
+    let dx = 0, dy = 0;
+    if (keys["w"] || keys["arrowup"]) dy -= 1;
+    if (keys["s"] || keys["arrowdown"]) dy += 1;
+    if (keys["a"] || keys["arrowleft"]) dx -= 1;
+    if (keys["d"] || keys["arrowright"]) dx += 1;
+    let norm = Math.sqrt(dx*dx + dy*dy) || 1;
+    user.vx = (dx / norm) * speed;
+    user.vy = (dy / norm) * speed;
+
+    // Drible (movimento rápido)
+    if (keys[" "]) { // espaço
+        user.vx *= DRIBBLE_SPEED/PLAYER_SPEED;
+        user.vy *= DRIBBLE_SPEED/PLAYER_SPEED;
+        keys[" "] = false;
+    }
+
+    // Chapéu (levanta bola se próximo)
+    if (keys["c"]) {
+        let d = dist(user, ball);
+        if (d < PLAYER_RADIUS + BALL_RADIUS + 5 && Math.abs(ball.z) < 1) {
+            ball.vz = CHAPEU_VERTICAL_BOOST;
+            ball.vx = (ball.x - user.x) * 0.2;
+            ball.vy = (ball.y - user.y) * 0.2;
+            ball.lastTouch = 'A';
+        }
+        keys["c"] = false;
+    }
+}
+
+// Movimento dos jogadores AI
+function moveAI() {
+    // Time B (adversário)
+    for (let i = 0; i < teamB.length; i++) {
+        let p = teamB[i];
+        let target = (i === 0)
+            ? {x: FIELD_WIDTH-80, y: ball.y} // goleiro
+            : (dist(p, ball) < 250 ? ball : {x: p.x, y: p.y});
+        let dx = target.x - p.x;
+        let dy = target.y - p.y;
+        let norm = Math.sqrt(dx*dx + dy*dy) || 1;
+        p.vx = (dx/norm) * AI_SPEED;
+        p.vy = (dy/norm) * AI_SPEED;
+
+        // Tentativa de chute se próximo à bola (exceto goleiro)
+        if (!p.isGoleiro && dist(p, ball) < PLAYER_RADIUS + BALL_RADIUS + 3) {
+            // Chuta para frente do gol
+            ball.vx = -(Math.abs(ball.vx)+KICK_POWER);
+            ball.vy += (Math.random()-0.5)*3;
+            ball.lastTouch = 'B';
+        }
+    }
+
+    // Goleiro do usuário
+    let goleiro = teamA[0];
+    // Vai para posição da bola (restrito à área do gol)
+    let gy = Math.max((FIELD_HEIGHT-GOAL_HEIGHT)/2, Math.min(ball.y, (FIELD_HEIGHT+GOAL_HEIGHT)/2));
+    let dx = goleiro.x - 80;
+    let dy = gy - goleiro.y;
+    goleiro.vx = -dx*0.18;
+    goleiro.vy = dy*0.11;
+}
+
+// Atualiza jogadores
+function updatePlayers() {
+    for (let team of [teamA, teamB]) {
+        for (let p of team) {
+            p.x += p.vx;
+            p.y += p.vy;
+            // Fricção
+            p.vx *= 0.8;
+            p.vy *= 0.8;
+            // Limites do campo
+            if (p.x < PLAYER_RADIUS) p.x = PLAYER_RADIUS;
+            if (p.x > FIELD_WIDTH-PLAYER_RADIUS) p.x = FIELD_WIDTH-PLAYER_RADIUS;
+            if (p.y < PLAYER_RADIUS) p.y = PLAYER_RADIUS;
+            if (p.y > FIELD_HEIGHT-PLAYER_RADIUS) p.y = FIELD_HEIGHT-PLAYER_RADIUS;
+        }
+    }
+}
+
+// Atualiza bola com física simples
+function updateBall() {
+    // gravidade para chapéu
+    if (Math.abs(ball.z) > 0.1 || Math.abs(ball.vz) > 0.1) {
+        ball.vz -= 0.3; // gravidade
+        ball.z += ball.vz;
+        if (ball.z < 0) { ball.z = 0; ball.vz *= -0.5; }
+    }
+    ball.x += ball.vx;
+    ball.y += ball.vy;
+    ball.vx *= BALL_FRICTION;
+    ball.vy *= BALL_FRICTION;
+
+    // Colisão com paredes
+    if (ball.x < BALL_RADIUS) { ball.x = BALL_RADIUS; ball.vx *= -0.7; }
+    if (ball.x > FIELD_WIDTH-BALL_RADIUS) { ball.x = FIELD_WIDTH-BALL_RADIUS; ball.vx *= -0.7; }
+    if (ball.y < BALL_RADIUS) { ball.y = BALL_RADIUS; ball.vy *= -0.7; }
+    if (ball.y > FIELD_HEIGHT-BALL_RADIUS) { ball.y = FIELD_HEIGHT-BALL_RADIUS; ball.vy *= -0.7; }
+
+    // Colisão com jogadores
+    for (let team of [teamA, teamB]) {
+        for (let p of team) {
+            let d = dist(p, ball);
+            if (d < PLAYER_RADIUS + BALL_RADIUS && Math.abs(ball.z) < 10) {
+                // empurra bola
+                let angle = Math.atan2(ball.y-p.y, ball.x-p.x);
+                ball.vx += Math.cos(angle) * 1.8;
+                ball.vy += Math.sin(angle) * 1.8;
+                ball.lastTouch = team === teamA ? 'A' : 'B';
+                // Se for usuário e pressionar espaço, chuta!
+                if (p.isUser && keys[" "]) {
+                    ball.vx += Math.cos(angle) * KICK_POWER;
+                    ball.vy += Math.sin(angle) * KICK_POWER;
+                    keys[" "] = false;
+                }
+            }
+        }
+    }
+
+    // Gol?
+    checkGoal();
+}
+
+// Verifica se foi gol
+function checkGoal() {
+    // Esquerda (time B ataca)
+    if (ball.x - BALL_RADIUS < 10 &&
+        ball.y > (FIELD_HEIGHT-GOAL_HEIGHT)/2 &&
+        ball.y < (FIELD_HEIGHT+GOAL_HEIGHT)/2) {
+        rightScore++;
+        resetGame();
+    }
+    // Direita (time A ataca)
+    if (ball.x + BALL_RADIUS > FIELD_WIDTH-10 &&
+        ball.y > (FIELD_HEIGHT-GOAL_HEIGHT)/2 &&
+        ball.y < (FIELD_HEIGHT+GOAL_HEIGHT)/2) {
+        leftScore++;
+        resetGame();
+    }
+}
+
+// Reinicia após gol
+function resetGame() {
+    ball.x = FIELD_WIDTH/2;
+    ball.y = FIELD_HEIGHT/2;
+    ball.z = 0; ball.vz = 0;
+    ball.vx = 0; ball.vy = 0;
+    initTeams();
+}
+
+// --- Renderização ---
+function drawField() {
+    // Campo
+    ctx.fillStyle = "#2e7d32";
+    ctx.fillRect(0, 0, FIELD_WIDTH, FIELD_HEIGHT);
+    // Linhas
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(10, 10, FIELD_WIDTH-20, FIELD_HEIGHT-20);
+    // Linha do meio
+    ctx.beginPath();
+    ctx.moveTo(FIELD_WIDTH/2, 10);
+    ctx.lineTo(FIELD_WIDTH/2, FIELD_HEIGHT-10);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(FIELD_WIDTH/2, FIELD_HEIGHT/2, 70, 0, 2*Math.PI);
+    ctx.stroke();
+
+    // Gols
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, (FIELD_HEIGHT-GOAL_HEIGHT)/2, 10, GOAL_HEIGHT);
+    ctx.fillRect(FIELD_WIDTH-10, (FIELD_HEIGHT-GOAL_HEIGHT)/2, 10, GOAL_HEIGHT);
+}
+
+function drawPlayers() {
+    for (let team of [teamA, teamB]) {
+        for (let p of team) {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, PLAYER_RADIUS, 0, 2*Math.PI);
+            ctx.fillStyle = p.color;
+            ctx.fill();
+            ctx.lineWidth = p.isGoleiro ? 5 : (p.isUser ? 4 : 2);
+            ctx.strokeStyle = p.isGoleiro ? "#FFD700" : "#fff";
+            ctx.stroke();
+            // Indica usuário
+            if (p.isUser) {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, PLAYER_RADIUS+7, 0, 2*Math.PI);
+                ctx.strokeStyle = "#00FFAA";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+    }
+}
+
+function drawBall() {
+    ctx.save();
+    ctx.shadowColor = "#000";
+    ctx.shadowBlur = 10;
+    // sombra
+    ctx.beginPath();
+    ctx.ellipse(ball.x, ball.y+ball.z+12, BALL_RADIUS*1.05, BALL_RADIUS*0.55, 0, 0, 2*Math.PI);
+    ctx.fillStyle = "#222a";
+    ctx.fill();
+    // bola
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y-ball.z, BALL_RADIUS, 0, 2*Math.PI);
+    ctx.fillStyle = "#fff";
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#000";
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawScore() {
+    ctx.font = "32px Arial";
+    ctx.fillStyle = "#fff";
+    ctx.fillText(`${leftScore} x ${rightScore}`, FIELD_WIDTH/2-30, 50);
+}
+
+// --- Loop do Jogo ---
+function gameLoop() {
+    drawField();
+    drawPlayers();
+    drawBall();
+    drawScore();
+    moveUser();
+    moveAI();
+    updatePlayers();
+    updateBall();
+    requestAnimationFrame(gameLoop);
+}
+
+// --- Inicialização ---
+initTeams();
+gameLoop();
