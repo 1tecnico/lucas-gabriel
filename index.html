@@ -13,7 +13,6 @@
       min-height: 100vh;
       display: flex;
     }
-
     .mochila {
       width: 260px;
       background: #1a1a2e;
@@ -22,20 +21,17 @@
       overflow-y: auto;
       border-right: 1px solid #333;
     }
-
     h2 {
       margin: 0 0 16px 0;
       color: #88f;
       font-size: 1.4rem;
       text-align: center;
     }
-
     .entrada {
       display: flex;
       margin-bottom: 16px;
       gap: 6px;
     }
-
     input {
       flex: 1;
       padding: 10px;
@@ -45,7 +41,6 @@
       color: white;
       font-size: 1rem;
     }
-
     button {
       padding: 0 14px;
       background: #4466ff;
@@ -54,16 +49,13 @@
       border-radius: 6px;
       cursor: pointer;
     }
-
     button:hover {
       background: #5577ff;
     }
-
     ul {
       list-style: none;
       padding: 0;
     }
-
     li {
       padding: 12px 10px;
       margin: 6px 0;
@@ -73,17 +65,14 @@
       user-select: none;
       transition: all 0.15s;
     }
-
     li:hover {
       background: #303050;
     }
-
     li.riscado {
       text-decoration: line-through;
       color: #777;
       background: #1e1e30;
     }
-
     .principal {
       flex: 1;
       padding: 40px;
@@ -97,7 +86,7 @@
   
   <div class="entrada">
     <input id="txt" placeholder="Digite a matéria..." autofocus>
-    <button onclick="adicionar()">+</button>
+    <button id="btnAdd">+</button>
   </div>
 
   <ul id="lista"></ul>
@@ -110,6 +99,7 @@
 
 <script>
 const input = document.getElementById('txt');
+const btnAdd = document.getElementById('btnAdd');
 const lista = document.getElementById('lista');
 
 let materias = JSON.parse(localStorage.getItem('mochila')) || [];
@@ -141,14 +131,20 @@ function adicionar() {
   
   materias.push({ texto, feito: false });
   input.value = '';
+  input.focus();           // volta o foco pro input (melhor usabilidade)
   salvar();
 }
 
-input.onkeypress = e => {
-  if (e.key === 'Enter') adicionar();
-};
+// Eventos
+btnAdd.addEventListener('click', adicionar);
 
-// primeira carga
+input.addEventListener('keypress', e => {
+  if (e.key === 'Enter') {
+    adicionar();
+  }
+});
+
+// Carrega na abertura
 renderizar();
 </script>
 
