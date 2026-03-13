@@ -2,225 +2,412 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Minha Mochila</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Mochila - Planner Profissional</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        :root {
+            --primary: #d90429;
+            --primary-dark: #a1031f;
+            --accent: #ffcc00;
+            --bg: #0f0f1a;
+            --card-bg: rgba(30, 30, 60, 0.78);
+            --text: #f0f4ff;
+            --text-muted: #b0c4ff;
+            --success: #00d084;
+        }
+
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(rgba(15,15,26,0.88), rgba(15,15,26,0.92)),
+                        url('https://images.unsplash.com/photo-1635805737708-6750956d5d6c?auto=format&fit=crop&q=90') center/cover no-repeat fixed;
+            color: var(--text);
             min-height: 100vh;
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), 
-                        url('https://wallpapers.com/images/hd/spider-man-swinging-through-city-night-eoexy11abapsvdtk.jpg') center/cover no-repeat fixed;
-            color: white;
-            background-color: #0f0f1a; /* fallback */
+            padding-bottom: 3rem;
         }
+
         header {
-            background: rgba(217, 4, 41, 0.85);
-            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 1.8rem 1rem;
             text-align: center;
-            font-size: 32px;
-            font-weight: bold;
-            backdrop-filter: blur(4px);
-            border-bottom: 3px solid #ffcc00;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        .container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            padding: 25px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        .disciplina {
-            background: rgba(30, 30, 60, 0.75);
-            border-radius: 16px;
-            padding: 18px;
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255,255,255,0.15);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-        }
-        .disciplina h2 {
-            margin: 0 0 15px 0;
-            font-size: 22px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .icon {
-            font-size: 28px;
-            color: #ffcc00;
-        }
-        .aulas {
-            min-height: 60px;
-            margin-bottom: 12px;
-        }
-        .aula {
-            background: rgba(255,255,255,0.12);
-            padding: 10px 12px;
-            margin: 8px 0;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 15px;
-            transition: all 0.2s;
-        }
-        .aula:hover {
-            background: rgba(255,255,255,0.22);
-        }
-        .delete-btn {
-            background: #d90429;
-            border: none;
-            color: white;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 14px;
+
+        header h1 {
+            font-size: 2.1rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.2s;
+            gap: 0.8rem;
         }
-        .delete-btn:hover {
-            background: #a1031f;
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 2rem 1.5rem;
+            max-width: 1600px;
+            margin: 0 auto;
         }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border: none;
-            border-radius: 8px;
+
+        .disciplina {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .disciplina:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+        }
+
+        .disciplina h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            margin-bottom: 1.2rem;
+            font-size: 1.4rem;
+            color: var(--accent);
+        }
+
+        .stats {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress {
+            height: 6px;
             background: rgba(255,255,255,0.15);
-            color: white;
-            font-size: 15px;
+            border-radius: 3px;
+            overflow: hidden;
+            flex: 1;
+            margin-left: 0.8rem;
         }
-        input::placeholder {
-            color: rgba(255,255,255,0.6);
+
+        .progress-bar {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: width 0.4s ease;
         }
-        button {
-            width: 100%;
-            padding: 10px;
+
+        .aulas {
+            min-height: 80px;
+            margin-bottom: 1.2rem;
+        }
+
+        .aula {
+            background: rgba(255,255,255,0.08);
+            padding: 0.9rem 1.1rem;
+            margin: 0.6rem 0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .aula.completed .texto {
+            text-decoration: line-through;
+            color: var(--text-muted);
+            opacity: 0.8;
+        }
+
+        .aula:hover {
+            background: rgba(255,255,255,0.14);
+        }
+
+        .texto {
+            flex: 1;
+            font-size: 1rem;
+        }
+
+        .actions button {
+            background: none;
             border: none;
-            border-radius: 8px;
-            background: #d90429;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 0.3rem;
+            transition: color 0.2s;
+        }
+
+        .actions button:hover { color: white; }
+        .edit   { color: var(--accent); }
+        .delete { color: var(--primary); }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 0.9rem;
+            margin: 0.6rem 0;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.12);
             color: white;
-            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        input[type="text"]::placeholder { color: rgba(255,255,255,0.55); }
+
+        button.add {
+            width: 100%;
+            padding: 0.9rem;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
             cursor: pointer;
             transition: background 0.3s;
         }
-        button:hover {
-            background: #a1031f;
-        }
+
+        button.add:hover { background: var(--primary-dark); }
+
         footer {
             text-align: center;
-            padding: 20px;
-            background: rgba(36,0,70,0.8);
-            margin-top: 30px;
-            font-size: 14px;
+            padding: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 600px) {
+            .container { grid-template-columns: 1fr; padding: 1.2rem; }
+            header h1 { font-size: 1.8rem; }
         }
     </style>
 </head>
 <body>
-    <header>
-        🎒 Minha Mochila - Estudos do Miles
-    </header>
 
-    <div class="container">
-        <div class="disciplina">
-            <h2><i class="fa-solid fa-book icon"></i> Matemática</h2>
-            <div class="aulas" id="matematica"></div>
-            <input type="text" id="input-matematica" placeholder="Adicionar aula..." onkeypress="if(event.key === 'Enter') addAula('matematica')">
-            <button onclick="addAula('matematica')">Adicionar Aula</button>
-        </div>
+<header>
+    <h1><i class="fa-solid fa-spider"></i> Minha Mochila - Planner</h1>
+</header>
 
-        <div class="disciplina">
-            <h2><i class="fa-solid fa-book icon"></i> Português</h2>
-            <div class="aulas" id="portugues"></div>
-            <input type="text" id="input-portugues" placeholder="Adicionar aula..." onkeypress="if(event.key === 'Enter') addAula('portugues')">
-            <button onclick="addAula('portugues')">Adicionar Aula</button>
+<div class="container">
+    <!-- Matemática -->
+    <div class="disciplina" data-key="matematica">
+        <h2><i class="fa-solid fa-square-root-variable"></i> Matemática</h2>
+        <div class="stats">
+            <span>0 de 0 concluídas</span>
+            <div class="progress"><div class="progress-bar"></div></div>
         </div>
-
-        <div class="disciplina">
-            <h2><i class="fa-solid fa-book icon"></i> História</h2>
-            <div class="aulas" id="historia"></div>
-            <input type="text" id="input-historia" placeholder="Adicionar aula..." onkeypress="if(event.key === 'Enter') addAula('historia')">
-            <button onclick="addAula('historia')">Adicionar Aula</button>
-        </div>
-
-        <div class="disciplina">
-            <h2><i class="fa-solid fa-book icon"></i> Geografia</h2>
-            <div class="aulas" id="geografia"></div>
-            <input type="text" id="input-geografia" placeholder="Adicionar aula..." onkeypress="if(event.key === 'Enter') addAula('geografia')">
-            <button onclick="addAula('geografia')">Adicionar Aula</button>
-        </div>
-
-        <div class="disciplina">
-            <h2><i class="fa-solid fa-flask icon"></i> Ciências</h2>
-            <div class="aulas" id="ciencias"></div>
-            <input type="text" id="input-ciencias" placeholder="Adicionar aula..." onkeypress="if(event.key === 'Enter') addAula('ciencias')">
-            <button onclick="addAula('ciencias')">Adicionar Aula</button>
-        </div>
-
-        <div class="disciplina">
-            <h2><i class="fa-solid fa-globe icon"></i> Inglês</h2>
-            <div class="aulas" id="ingles"></div>
-            <input type="text" id="input-ingles" placeholder="Adicionar aula..." onkeypress="if(event.key === 'Enter') addAula('ingles')">
-            <button onclick="addAula('ingles')">Adicionar Aula</button>
-        </div>
-
-        <div class="disciplina">
-            <h2><i class="fa-solid fa-code icon"></i> Programação</h2>
-            <div class="aulas" id="programacao"></div>
-            <input type="text" id="input-programacao" placeholder="Adicionar aula..." onkeypress="if(event.key === 'Enter') addAula('programacao')">
-            <button onclick="addAula('programacao')">Adicionar Aula</button>
-        </div>
-
-        <div class="disciplina">
-            <h2><i class="fa-solid fa-robot icon"></i> Robótica</h2>
-            <div class="aulas" id="robotica"></div>
-            <input type="text" id="input-robotica" placeholder="Adicionar aula..." onkeypress="if(event.key === 'Enter') addAula('robotica')">
-            <button onclick="addAula('robotica')">Adicionar Aula</button>
-        </div>
-
-        <div class="disciplina">
-            <h2><i class="fa-solid fa-brain icon"></i> Inteligência Artificial</h2>
-            <div class="aulas" id="ia"></div>
-            <input type="text" id="input-ia" placeholder="Adicionar aula..." onkeypress="if(event.key === 'Enter') addAula('ia')">
-            <button onclick="addAula('ia')">Adicionar Aula</button>
-        </div>
+        <div class="aulas"></div>
+        <input type="text" class="input-aula" placeholder="Nova aula / conteúdo...">
+        <button class="add">+ Adicionar</button>
     </div>
 
-    <footer>
-        ⚡ Plataforma de estudos - Minha Mochila | Feito com carinho e vibe Miles Morales
-    </footer>
+    <!-- Português -->
+    <div class="disciplina" data-key="portugues">
+        <h2><i class="fa-solid fa-book"></i> Português</h2>
+        <div class="stats">
+            <span>0 de 0 concluídas</span>
+            <div class="progress"><div class="progress-bar"></div></div>
+        </div>
+        <div class="aulas"></div>
+        <input type="text" class="input-aula" placeholder="Nova aula / conteúdo...">
+        <button class="add">+ Adicionar</button>
+    </div>
 
-    <script>
-        function addAula(disciplina) {
-            const input = document.getElementById("input-" + disciplina);
-            const lista = document.getElementById(disciplina);
-            const texto = input.value.trim();
+    <!-- História -->
+    <div class="disciplina" data-key="historia">
+        <h2><i class="fa-solid fa-landmark"></i> História</h2>
+        <div class="stats">
+            <span>0 de 0 concluídas</span>
+            <div class="progress"><div class="progress-bar"></div></div>
+        </div>
+        <div class="aulas"></div>
+        <input type="text" class="input-aula" placeholder="Nova aula / conteúdo...">
+        <button class="add">+ Adicionar</button>
+    </div>
 
-            if (texto !== "") {
-                const novaAula = document.createElement("div");
-                novaAula.className = "aula";
-                
-                const spanTexto = document.createElement("span");
-                spanTexto.textContent = texto;
-                
-                const btnApagar = document.createElement("button");
-                btnApagar.className = "delete-btn";
-                btnApagar.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-                btnApagar.onclick = () => novaAula.remove();
-                
-                novaAula.appendChild(spanTexto);
-                novaAula.appendChild(btnApagar);
-                
-                lista.appendChild(novaAula);
-                input.value = "";
+    <!-- Outras disciplinas seguem o mesmo padrão -->
+    <div class="disciplina" data-key="geografia">
+        <h2><i class="fa-solid fa-earth-americas"></i> Geografia</h2>
+        <div class="stats"><span>0 de 0 concluídas</span><div class="progress"><div class="progress-bar"></div></div></div>
+        <div class="aulas"></div>
+        <input type="text" class="input-aula" placeholder="Nova aula / conteúdo...">
+        <button class="add">+ Adicionar</button>
+    </div>
+
+    <div class="disciplina" data-key="ciencias">
+        <h2><i class="fa-solid fa-flask-vial"></i> Ciências</h2>
+        <div class="stats"><span>0 de 0 concluídas</span><div class="progress"><div class="progress-bar"></div></div></div>
+        <div class="aulas"></div>
+        <input type="text" class="input-aula" placeholder="Nova aula / conteúdo...">
+        <button class="add">+ Adicionar</button>
+    </div>
+
+    <div class="disciplina" data-key="ingles">
+        <h2><i class="fa-solid fa-language"></i> Inglês</h2>
+        <div class="stats"><span>0 de 0 concluídas</span><div class="progress"><div class="progress-bar"></div></div></div>
+        <div class="aulas"></div>
+        <input type="text" class="input-aula" placeholder="Nova aula / conteúdo...">
+        <button class="add">+ Adicionar</button>
+    </div>
+
+    <div class="disciplina" data-key="programacao">
+        <h2><i class="fa-solid fa-code"></i> Programação</h2>
+        <div class="stats"><span>0 de 0 concluídas</span><div class="progress"><div class="progress-bar"></div></div></div>
+        <div class="aulas"></div>
+        <input type="text" class="input-aula" placeholder="Nova aula / conteúdo...">
+        <button class="add">+ Adicionar</button>
+    </div>
+
+    <div class="disciplina" data-key="robotica">
+        <h2><i class="fa-solid fa-robot"></i> Robótica</h2>
+        <div class="stats"><span>0 de 0 concluídas</span><div class="progress"><div class="progress-bar"></div></div></div>
+        <div class="aulas"></div>
+        <input type="text" class="input-aula" placeholder="Nova aula / conteúdo...">
+        <button class="add">+ Adicionar</button>
+    </div>
+
+    <div class="disciplina" data-key="ia">
+        <h2><i class="fa-solid fa-brain"></i> Inteligência Artificial</h2>
+        <div class="stats"><span>0 de 0 concluídas</span><div class="progress"><div class="progress-bar"></div></div></div>
+        <div class="aulas"></div>
+        <input type="text" class="input-aula" placeholder="Nova aula / conteúdo...">
+        <button class="add">+ Adicionar</button>
+    </div>
+</div>
+
+<footer>
+    <i class="fa-solid fa-spider"></i> Minha Mochila • Feito com foco e disciplina • 2026
+</footer>
+
+<script>
+    const disciplinas = document.querySelectorAll('.disciplina');
+
+    function saveData() {
+        const data = {};
+        disciplinas.forEach(div => {
+            const key = div.dataset.key;
+            const aulas = [];
+            div.querySelectorAll('.aula').forEach(aula => {
+                aulas.push({
+                    text: aula.querySelector('.texto').textContent,
+                    done: aula.classList.contains('completed')
+                });
+            });
+            data[key] = aulas;
+        });
+        localStorage.setItem('minha-mochila', JSON.stringify(data));
+    }
+
+    function loadData() {
+        const saved = localStorage.getItem('minha-mochila');
+        if (!saved) return;
+
+        const data = JSON.parse(saved);
+        disciplinas.forEach(div => {
+            const key = div.dataset.key;
+            const container = div.querySelector('.aulas');
+            container.innerHTML = '';
+
+            if (data[key]) {
+                data[key].forEach(item => {
+                    createAulaElement(container, item.text, item.done);
+                });
             }
-        }
-    </script>
+            updateStats(div);
+        });
+    }
+
+    function createAulaElement(container, texto, done = false) {
+        const div = document.createElement('div');
+        div.className = 'aula';
+        if (done) div.classList.add('completed');
+
+        div.innerHTML = `
+            <input type="checkbox" ${done ? 'checked' : ''} aria-label="Marcar como concluída">
+            <span class="texto">${texto}</span>
+            <div class="actions">
+                <button class="edit" aria-label="Editar"><i class="fa-solid fa-pen"></i></button>
+                <button class="delete" aria-label="Excluir"><i class="fa-solid fa-trash"></i></button>
+            </div>
+        `;
+
+        // Checkbox
+        div.querySelector('input[type="checkbox"]').addEventListener('change', e => {
+            div.classList.toggle('completed', e.target.checked);
+            updateStats(div.closest('.disciplina'));
+            saveData();
+        });
+
+        // Editar
+        div.querySelector('.edit').addEventListener('click', () => {
+            const span = div.querySelector('.texto');
+            const novoTexto = prompt('Editar aula:', span.textContent);
+            if (novoTexto !== null && novoTexto.trim()) {
+                span.textContent = novoTexto.trim();
+                saveData();
+            }
+        });
+
+        // Deletar
+        div.querySelector('.delete').addEventListener('click', () => {
+            if (confirm('Tem certeza que deseja excluir esta aula?')) {
+                div.remove();
+                updateStats(div.closest('.disciplina'));
+                saveData();
+            }
+        });
+
+        container.appendChild(div);
+    }
+
+    function updateStats(disciplinaDiv) {
+        const aulas = disciplinaDiv.querySelectorAll('.aula');
+        const concluidas = disciplinaDiv.querySelectorAll('.aula.completed').length;
+        const total = aulas.length;
+
+        const stats = disciplinaDiv.querySelector('.stats span');
+        stats.textContent = `${concluidas} de ${total} concluídas`;
+
+        const progressBar = disciplinaDiv.querySelector('.progress-bar');
+        progressBar.style.width = total ? `${(concluidas / total) * 100}%` : '0%';
+    }
+
+    // Adicionar nova aula
+    disciplinas.forEach(div => {
+        const btn = div.querySelector('.add');
+        const input = div.querySelector('.input-aula');
+
+        btn.addEventListener('click', () => addAula(div, input));
+        input.addEventListener('keypress', e => {
+            if (e.key === 'Enter') addAula(div, input);
+        });
+    });
+
+    function addAula(disciplinaDiv, input) {
+        const texto = input.value.trim();
+        if (!texto) return;
+
+        const container = disciplinaDiv.querySelector('.aulas');
+        createAulaElement(container, texto);
+        input.value = '';
+        updateStats(disciplinaDiv);
+        saveData();
+    }
+
+    // Inicializar
+    loadData();
+</script>
 </body>
 </html>
