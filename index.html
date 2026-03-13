@@ -3,105 +3,164 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Minha Mochila - Lucas</title>
+  <title>Mochila de Estudos - Lucas</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
+    :root {
+      --bg: #f8f9fc;
+      --sidebar: #ffffff;
+      --text: #2d3748;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --done: #10b981;
+      --border: #e2e8f0;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0d1117;
-      color: #c9d1d9;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
     }
-    .mochila {
-      width: 280px;
-      background: #161b22;
-      padding: 20px;
+
+    .sidebar {
+      width: 300px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      padding: 24px 20px;
       height: 100vh;
       overflow-y: auto;
-      border-right: 1px solid #30363d;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.03);
     }
-    h2 {
-      margin: 0 0 20px;
-      color: #58a6ff;
-      font-size: 1.5rem;
+
+    .header {
       text-align: center;
+      margin-bottom: 28px;
     }
-    .entrada {
+
+    .header i {
+      font-size: 2.2rem;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .header h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      color: var(--text);
+    }
+
+    .add-area {
       display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
+      gap: 10px;
+      margin-bottom: 24px;
     }
+
     input[type="text"] {
       flex: 1;
-      padding: 10px 12px;
-      border: 1px solid #30363d;
-      border-radius: 6px;
-      background: #0d1117;
-      color: #c9d1d9;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
       font-size: 1rem;
+      transition: border-color 0.2s;
     }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+    }
+
     button {
-      padding: 0 16px;
-      background: #238636;
+      padding: 0 18px;
+      background: var(--accent);
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 10px;
+      font-size: 1.1rem;
       cursor: pointer;
-      font-weight: bold;
+      transition: background 0.2s;
     }
+
     button:hover {
-      background: #2ea043;
+      background: var(--accent-hover);
     }
+
     ul {
       list-style: none;
       padding: 0;
       margin: 0;
     }
+
     li {
-      padding: 12px 14px;
+      padding: 14px 16px;
       margin: 8px 0;
-      background: #21262d;
-      border-radius: 6px;
+      background: #f1f5f9;
+      border-radius: 10px;
       cursor: pointer;
+      transition: all 0.18s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
       user-select: none;
-      transition: all 0.2s;
-      position: relative;
     }
+
     li:hover {
-      background: #30363d;
+      background: #e2e8f0;
+      transform: translateX(4px);
     }
+
     li.riscado {
+      background: #ecfdf5;
+      color: #64748b;
       text-decoration: line-through;
-      color: #8b949e;
-      background: #1c2526;
     }
+
+    li.riscado i {
+      color: var(--done);
+    }
+
     li.editando {
-      background: #2d3748;
-      padding: 8px;
+      background: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      padding: 10px;
     }
+
     .principal {
       flex: 1;
-      padding: 40px;
+      padding: 48px 40px;
+    }
+
+    .principal h1 {
+      margin-top: 0;
+      color: var(--accent);
     }
   </style>
 </head>
 <body>
 
-<div class="mochila">
-  <h2>Matérias</h2>
-  
-  <div class="entrada">
-    <input id="txt" placeholder="Digite a matéria..." autofocus>
-    <button id="btnAdd">Adicionar</button>
+<div class="sidebar">
+  <div class="header">
+    <i class="fa-solid fa-book-open"></i>
+    <h2>Minha Mochila</h2>
+  </div>
+
+  <div class="add-area">
+    <input id="txt" placeholder="Nova matéria..." autofocus>
+    <button id="btnAdd"><i class="fa-solid fa-plus"></i></button>
   </div>
 
   <ul id="lista"></ul>
 </div>
 
 <div class="principal">
-  <h1>Mochila de Estudos</h1>
-  <p>Clique = marcar/desmarcar • Duplo clique = editar o nome</p>
+  <h1>Bem-vindo à sua mochila de estudos</h1>
+  <p style="color:#64748b; line-height:1.6;">
+    • Clique = marcar / desmarcar como concluído<br>
+    • Duplo clique = editar o nome da matéria
+  </p>
 </div>
 
 <script>
@@ -109,10 +168,10 @@ const input = document.getElementById('txt');
 const btnAdd = document.getElementById('btnAdd');
 const lista = document.getElementById('lista');
 
-let materias = JSON.parse(localStorage.getItem('mochila2025')) || [];
+let materias = JSON.parse(localStorage.getItem('mochila_lista')) || [];
 
 function salvar() {
-  localStorage.setItem('mochila2025', JSON.stringify(materias));
+  localStorage.setItem('mochila_lista', JSON.stringify(materias));
   renderizar();
 }
 
@@ -121,15 +180,18 @@ function renderizar() {
 
   materias.forEach((item, i) => {
     const li = document.createElement('li');
-    li.textContent = item.texto;
+    if (item.feito) li.classList.add('riscado');
 
-    if (item.feito) {
-      li.classList.add('riscado');
-    }
+    const icone = document.createElement('i');
+    icone.className = item.feito ? 'fa-solid fa-check-circle' : 'fa-regular fa-circle';
+    li.appendChild(icone);
 
-    // Clique simples → marcar/desmarcar
-    li.addEventListener('click', (e) => {
-      if (e.detail === 1) {  // evita acionar no duplo clique
+    const texto = document.createTextNode(item.texto);
+    li.appendChild(texto);
+
+    // Clique simples → toggle feito
+    li.addEventListener('click', e => {
+      if (e.detail === 1) {
         materias[i].feito = !materias[i].feito;
         salvar();
       }
@@ -137,34 +199,27 @@ function renderizar() {
 
     // Duplo clique → editar
     li.addEventListener('dblclick', () => {
-      const antigoTexto = item.texto;
+      const antigo = item.texto;
       li.classList.add('editando');
       li.innerHTML = '';
 
       const editInput = document.createElement('input');
       editInput.type = 'text';
-      editInput.value = antigoTexto;
+      editInput.value = antigo;
       editInput.style.width = '100%';
-      editInput.style.padding = '8px';
-      editInput.style.borderRadius = '4px';
-      editInput.style.border = '1px solid #58a6ff';
-      editInput.style.background = '#0d1117';
-      editInput.style.color = '#c9d1d9';
+      editInput.style.padding = '10px 12px';
+      editInput.style.border = '1px solid #cbd5e1';
+      editInput.style.borderRadius = '8px';
+      editInput.style.fontSize = '1rem';
 
       const salvarEdit = () => {
-        const novoTexto = editInput.value.trim();
-        if (novoTexto) {
-          materias[i].texto = novoTexto;
-        }
+        const novo = editInput.value.trim();
+        if (novo) materias[i].texto = novo;
         salvar();
       };
 
       editInput.onblur = salvarEdit;
-      editInput.onkeypress = (e) => {
-        if (e.key === 'Enter') {
-          salvarEdit();
-        }
-      };
+      editInput.onkeydown = e => { if (e.key === 'Enter') salvarEdit(); };
 
       li.appendChild(editInput);
       editInput.focus();
@@ -185,14 +240,10 @@ function adicionar() {
   salvar();
 }
 
-// Eventos
-btnAdd.addEventListener('click', adicionar);
+btnAdd.onclick = adicionar;
+input.onkeypress = e => { if (e.key === 'Enter') adicionar(); };
 
-input.addEventListener('keypress', e => {
-  if (e.key === 'Enter') adicionar();
-});
-
-// Primeira renderização
+// Inicializa
 renderizar();
 </script>
 
