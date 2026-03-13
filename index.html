@@ -15,7 +15,6 @@
       --done: #10b981;
       --border: #e2e8f0;
     }
-
     body {
       margin: 0;
       font-family: system-ui, -apple-system, sans-serif;
@@ -24,9 +23,8 @@
       min-height: 100vh;
       display: flex;
     }
-
     .sidebar {
-      width: 300px;
+      width: 320px;
       background: var(--sidebar);
       border-right: 1px solid var(--border);
       padding: 24px 20px;
@@ -34,30 +32,25 @@
       overflow-y: auto;
       box-shadow: 2px 0 10px rgba(0,0,0,0.03);
     }
-
     .header {
       text-align: center;
       margin-bottom: 28px;
     }
-
     .header i {
       font-size: 2.2rem;
       color: var(--accent);
       margin-bottom: 8px;
     }
-
     .header h2 {
       margin: 0;
       font-size: 1.35rem;
       color: var(--text);
     }
-
     .add-area {
       display: flex;
       gap: 10px;
       margin-bottom: 24px;
     }
-
     input[type="text"] {
       flex: 1;
       padding: 12px 16px;
@@ -66,13 +59,11 @@
       font-size: 1rem;
       transition: border-color 0.2s;
     }
-
     input[type="text"]:focus {
       outline: none;
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
     }
-
     button {
       padding: 0 18px;
       background: var(--accent);
@@ -83,17 +74,14 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-
     button:hover {
       background: var(--accent-hover);
     }
-
     ul {
       list-style: none;
       padding: 0;
       margin: 0;
     }
-
     li {
       padding: 14px 16px;
       margin: 8px 0;
@@ -101,38 +89,54 @@
       border-radius: 10px;
       cursor: pointer;
       transition: all 0.18s;
-      display: flex;
-      align-items: center;
-      gap: 12px;
       user-select: none;
+      position: relative;
     }
-
     li:hover {
       background: #e2e8f0;
       transform: translateX(4px);
     }
-
     li.riscado {
       background: #ecfdf5;
       color: #64748b;
       text-decoration: line-through;
     }
-
-    li.riscado i {
+    li.riscado .icone-check {
       color: var(--done);
     }
-
-    li.editando {
+    li.aberto {
       background: white;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      padding: 10px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      padding-bottom: 0;
     }
-
+    .conteudo-li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .anotacao-area {
+      margin-top: 12px;
+      padding: 0 4px 14px 4px;
+    }
+    .anotacao-area textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      resize: vertical;
+      font-family: inherit;
+    }
+    .anotacao-area textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+    }
     .principal {
       flex: 1;
       padding: 48px 40px;
     }
-
     .principal h1 {
       margin-top: 0;
       color: var(--accent);
@@ -158,8 +162,9 @@
 <div class="principal">
   <h1>Bem-vindo à sua mochila de estudos</h1>
   <p style="color:#64748b; line-height:1.6;">
-    • Clique = marcar / desmarcar como concluído<br>
-    • Duplo clique = editar o nome da matéria
+    • Clique = marcar/desmarcar + abrir anotação<br>
+    • Duplo clique no nome = editar título da matéria<br>
+    • Escreva suas anotações, resumos, links etc. abaixo
   </p>
 </div>
 
@@ -181,47 +186,74 @@ function renderizar() {
   materias.forEach((item, i) => {
     const li = document.createElement('li');
     if (item.feito) li.classList.add('riscado');
+    if (item.aberto) li.classList.add('aberto');
+
+    const conteudo = document.createElement('div');
+    conteudo.className = 'conteudo-li';
 
     const icone = document.createElement('i');
-    icone.className = item.feito ? 'fa-solid fa-check-circle' : 'fa-regular fa-circle';
-    li.appendChild(icone);
+    icone.className = item.feito 
+      ? 'fa-solid fa-check-circle icone-check' 
+      : 'fa-regular fa-circle';
+    conteudo.appendChild(icone);
 
     const texto = document.createTextNode(item.texto);
-    li.appendChild(texto);
+    conteudo.appendChild(texto);
 
-    // Clique simples → toggle feito
+    li.appendChild(conteudo);
+
+    // Área de anotação (só aparece se aberto)
+    if (item.aberto) {
+      const anotArea = document.createElement('div');
+      anotArea.className = 'anotacao-area';
+
+      const textarea = document.createElement('textarea');
+      textarea.placeholder = "Escreva aqui suas anotações, resumo, links...";
+      textarea.value = item.anotacao || '';
+      
+      textarea.oninput = () => {
+        item.anotacao = textarea.value;
+        salvar();  // salva a cada digitação (pode mudar para onblur se preferir)
+      };
+
+      anotArea.appendChild(textarea);
+      li.appendChild(anotArea);
+    }
+
+    // Clique simples → toggle riscado + abrir/fechar anotação
     li.addEventListener('click', e => {
-      if (e.detail === 1) {
-        materias[i].feito = !materias[i].feito;
+      if (e.detail === 1 && !e.target.tagName === 'TEXTAREA') {
+        item.feito = !item.feito;
+        item.aberto = !item.aberto;
         salvar();
       }
     });
 
-    // Duplo clique → editar
-    li.addEventListener('dblclick', () => {
+    // Duplo clique no título → editar nome
+    conteudo.addEventListener('dblclick', (e) => {
+      e.stopPropagation(); // evita abrir/fechar anotação
       const antigo = item.texto;
-      li.classList.add('editando');
-      li.innerHTML = '';
+      conteudo.innerHTML = '';
 
       const editInput = document.createElement('input');
       editInput.type = 'text';
       editInput.value = antigo;
       editInput.style.width = '100%';
-      editInput.style.padding = '10px 12px';
+      editInput.style.padding = '8px 12px';
       editInput.style.border = '1px solid #cbd5e1';
       editInput.style.borderRadius = '8px';
       editInput.style.fontSize = '1rem';
 
       const salvarEdit = () => {
         const novo = editInput.value.trim();
-        if (novo) materias[i].texto = novo;
+        if (novo) item.texto = novo;
         salvar();
       };
 
       editInput.onblur = salvarEdit;
       editInput.onkeydown = e => { if (e.key === 'Enter') salvarEdit(); };
 
-      li.appendChild(editInput);
+      conteudo.appendChild(editInput);
       editInput.focus();
       editInput.select();
     });
@@ -234,7 +266,13 @@ function adicionar() {
   const texto = input.value.trim();
   if (!texto) return;
 
-  materias.push({ texto, feito: false });
+  materias.push({ 
+    texto, 
+    feito: false, 
+    aberto: false, 
+    anotacao: '' 
+  });
+  
   input.value = '';
   input.focus();
   salvar();
