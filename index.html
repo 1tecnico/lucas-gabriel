@@ -3,287 +3,290 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mochila de Estudos - Lucas</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title>Minha Mochila de Estudos</title>
   <style>
     :root {
-      --bg: #f8f9fc;
-      --sidebar: #ffffff;
-      --text: #2d3748;
-      --accent: #6366f1;
-      --accent-hover: #4f46e5;
-      --done: #10b981;
-      --border: #e2e8f0;
+      --bg: #0f0f1a;
+      --card: #1a1a2e;
+      --accent: #00d4ff;
+      --text: #e0e0ff;
+      --danger: #ff4d6d;
     }
-    body {
+
+    * {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
       font-family: system-ui, -apple-system, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      display: flex;
+      padding: 20px 16px;
+      line-height: 1.5;
     }
-    .sidebar {
-      width: 320px;
-      background: var(--sidebar);
-      border-right: 1px solid var(--border);
-      padding: 24px 20px;
-      height: 100vh;
-      overflow-y: auto;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.03);
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
     }
-    .header {
+
+    h1 {
       text-align: center;
-      margin-bottom: 28px;
-    }
-    .header i {
-      font-size: 2.2rem;
+      margin: 0 0 1.8rem;
+      font-size: 2.1rem;
       color: var(--accent);
-      margin-bottom: 8px;
     }
-    .header h2 {
-      margin: 0;
-      font-size: 1.35rem;
-      color: var(--text);
-    }
+
     .add-area {
       display: flex;
       gap: 10px;
-      margin-bottom: 24px;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
     }
+
     input[type="text"] {
       flex: 1;
+      min-width: 220px;
       padding: 12px 16px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 1rem;
-      transition: border-color 0.2s;
-    }
-    input[type="text"]:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
-    }
-    button {
-      padding: 0 18px;
-      background: var(--accent);
+      border: 1px solid #333;
+      border-radius: 8px;
+      background: #222;
       color: white;
+      font-size: 1rem;
+    }
+
+    button {
+      padding: 12px 24px;
+      background: var(--accent);
+      color: #000;
       border: none;
-      border-radius: 10px;
-      font-size: 1.1rem;
+      border-radius: 8px;
+      font-weight: bold;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s;
     }
+
     button:hover {
-      background: var(--accent-hover);
+      background: #00eaff;
+      transform: translateY(-1px);
     }
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
+
+    .mochila {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
     }
-    li {
-      padding: 14px 16px;
-      margin: 8px 0;
-      background: #f1f5f9;
-      border-radius: 10px;
-      cursor: pointer;
+
+    .materia {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid #2a2a4a;
       transition: all 0.18s;
-      user-select: none;
       position: relative;
     }
-    li:hover {
-      background: #e2e8f0;
-      transform: translateX(4px);
-    }
-    li.riscado {
-      background: #ecfdf5;
-      color: #64748b;
-      text-decoration: line-through;
-    }
-    li.riscado .icone-check {
-      color: var(--done);
-    }
-    li.aberto {
-      background: white;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-      padding-bottom: 0;
-    }
-    .conteudo-li {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .anotacao-area {
-      margin-top: 12px;
-      padding: 0 4px 14px 4px;
-    }
-    .anotacao-area textarea {
-      width: 100%;
-      min-height: 80px;
-      padding: 12px;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      resize: vertical;
-      font-family: inherit;
-    }
-    .anotacao-area textarea:focus {
-      outline: none;
+
+    .materia:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 212, 255, 0.12);
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
     }
-    .principal {
-      flex: 1;
-      padding: 48px 40px;
-    }
-    .principal h1 {
-      margin-top: 0;
+
+    .nome {
+      font-size: 1.25rem;
+      font-weight: 600;
       color: var(--accent);
+      margin-bottom: 0.6rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    .nome:hover {
+      background: rgba(0, 212, 255, 0.12);
+    }
+
+    .anotacao {
+      font-size: 0.95rem;
+      color: #c0c0e0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 1.2em;
+    }
+
+    .anotacao:empty::before {
+      content: "Clique no nome para adicionar anotação...";
+      color: #555;
+      font-style: italic;
+    }
+
+    .remover {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      color: var(--danger);
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1.4rem;
+      line-height: 1;
+      opacity: 0.7;
+    }
+
+    .remover:hover {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+
+    @media (max-width: 500px) {
+      .add-area { flex-direction: column; }
+      button { width: 100%; }
     }
   </style>
 </head>
 <body>
 
-<div class="sidebar">
-  <div class="header">
-    <i class="fa-solid fa-book-open"></i>
-    <h2>Minha Mochila</h2>
-  </div>
+<div class="container">
+  <h1>🎒 Minha Mochila</h1>
 
   <div class="add-area">
-    <input id="txt" placeholder="Nova matéria..." autofocus>
-    <button id="btnAdd"><i class="fa-solid fa-plus"></i></button>
+    <input type="text" id="novaMateria" placeholder="Digite o nome da matéria..." autocomplete="off"/>
+    <button onclick="adicionarMateria()">Adicionar</button>
   </div>
 
-  <ul id="lista"></ul>
-</div>
-
-<div class="principal">
-  <h1>Bem-vindo à sua mochila de estudos</h1>
-  <p style="color:#64748b; line-height:1.6;">
-    • Clique = marcar/desmarcar + abrir anotação<br>
-    • Duplo clique no nome = editar título da matéria<br>
-    • Escreva suas anotações, resumos, links etc. abaixo
-  </p>
+  <div class="mochila" id="mochila"></div>
 </div>
 
 <script>
-const input = document.getElementById('txt');
-const btnAdd = document.getElementById('btnAdd');
-const lista = document.getElementById('lista');
+const mochilaEl = document.getElementById('mochila');
+const inputEl   = document.getElementById('novaMateria');
 
-let materias = JSON.parse(localStorage.getItem('mochila_lista')) || [];
+let materias = JSON.parse(localStorage.getItem('mochila-materias') || '[]');
 
 function salvar() {
-  localStorage.setItem('mochila_lista', JSON.stringify(materias));
+  localStorage.setItem('mochila-materias', JSON.stringify(materias));
   renderizar();
 }
 
 function renderizar() {
-  lista.innerHTML = '';
+  mochilaEl.innerHTML = '';
 
   materias.forEach((item, i) => {
-    const li = document.createElement('li');
-    if (item.feito) li.classList.add('riscado');
-    if (item.aberto) li.classList.add('aberto');
+    const div = document.createElement('div');
+    div.className = 'materia';
 
-    const conteudo = document.createElement('div');
-    conteudo.className = 'conteudo-li';
+    // Nome editável
+    const nome = document.createElement('div');
+    nome.className = 'nome';
+    nome.textContent = item.nome;
+    nome.onclick = () => editarNome(i, nome);
 
-    const icone = document.createElement('i');
-    icone.className = item.feito 
-      ? 'fa-solid fa-check-circle icone-check' 
-      : 'fa-regular fa-circle';
-    conteudo.appendChild(icone);
+    // Anotação editável
+    const anot = document.createElement('div');
+    anot.className = 'anotacao';
+    anot.textContent = item.anotacao || '';
+    anot.onclick = () => editarAnotacao(i, anot);
 
-    const texto = document.createTextNode(item.texto);
-    conteudo.appendChild(texto);
-
-    li.appendChild(conteudo);
-
-    // Área de anotação (só aparece se aberto)
-    if (item.aberto) {
-      const anotArea = document.createElement('div');
-      anotArea.className = 'anotacao-area';
-
-      const textarea = document.createElement('textarea');
-      textarea.placeholder = "Escreva aqui suas anotações, resumo, links...";
-      textarea.value = item.anotacao || '';
-      
-      textarea.oninput = () => {
-        item.anotacao = textarea.value;
-        salvar();  // salva a cada digitação (pode mudar para onblur se preferir)
-      };
-
-      anotArea.appendChild(textarea);
-      li.appendChild(anotArea);
-    }
-
-    // Clique simples → toggle riscado + abrir/fechar anotação
-    li.addEventListener('click', e => {
-      if (e.detail === 1 && !e.target.tagName === 'TEXTAREA') {
-        item.feito = !item.feito;
-        item.aberto = !item.aberto;
+    // Botão remover
+    const btnRem = document.createElement('span');
+    btnRem.className = 'remover';
+    btnRem.textContent = '×';
+    btnRem.onclick = (e) => {
+      e.stopPropagation();
+      if (confirm(`Remover ${item.nome}?`)) {
+        materias.splice(i, 1);
         salvar();
       }
-    });
+    };
 
-    // Duplo clique no título → editar nome
-    conteudo.addEventListener('dblclick', (e) => {
-      e.stopPropagation(); // evita abrir/fechar anotação
-      const antigo = item.texto;
-      conteudo.innerHTML = '';
-
-      const editInput = document.createElement('input');
-      editInput.type = 'text';
-      editInput.value = antigo;
-      editInput.style.width = '100%';
-      editInput.style.padding = '8px 12px';
-      editInput.style.border = '1px solid #cbd5e1';
-      editInput.style.borderRadius = '8px';
-      editInput.style.fontSize = '1rem';
-
-      const salvarEdit = () => {
-        const novo = editInput.value.trim();
-        if (novo) item.texto = novo;
-        salvar();
-      };
-
-      editInput.onblur = salvarEdit;
-      editInput.onkeydown = e => { if (e.key === 'Enter') salvarEdit(); };
-
-      conteudo.appendChild(editInput);
-      editInput.focus();
-      editInput.select();
-    });
-
-    lista.appendChild(li);
+    div.append(btnRem, nome, anot);
+    mochilaEl.appendChild(div);
   });
 }
 
-function adicionar() {
-  const texto = input.value.trim();
+function adicionarMateria() {
+  const texto = inputEl.value.trim();
   if (!texto) return;
 
-  materias.push({ 
-    texto, 
-    feito: false, 
-    aberto: false, 
-    anotacao: '' 
-  });
-  
-  input.value = '';
-  input.focus();
+  materias.push({ nome: texto, anotacao: '' });
+  inputEl.value = '';
   salvar();
 }
 
-btnAdd.onclick = adicionar;
-input.onkeypress = e => { if (e.key === 'Enter') adicionar(); };
+// Pressionar Enter também adiciona
+inputEl.onkeydown = e => {
+  if (e.key === 'Enter') {
+    adicionarMateria();
+  }
+};
 
-// Inicializa
+function editarNome(idx, elemento) {
+  const original = materias[idx].nome;
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.value = original;
+  inp.style.width = '100%';
+  inp.style.background = 'rgba(0,212,255,0.1)';
+  inp.style.border = '1px solid var(--accent)';
+  inp.style.color = 'white';
+  inp.style.padding = '4px 8px';
+  inp.style.borderRadius = '6px';
+
+  elemento.replaceWith(inp);
+  inp.focus();
+  inp.select();
+
+  const salvarNome = () => {
+    const novo = inp.value.trim() || original;
+    materias[idx].nome = novo;
+    salvar();
+  };
+
+  inp.onblur = salvarNome;
+  inp.onkeydown = e => {
+    if (e.key === 'Enter') { e.preventDefault(); salvarNome(); }
+    if (e.key === 'Escape') { salvarNome(); }
+  };
+}
+
+function editarAnotacao(idx, elemento) {
+  const original = materias[idx].anotacao || '';
+  const inp = document.createElement('textarea');
+  inp.value = original;
+  inp.style.width = '100%';
+  inp.style.minHeight = '80px';
+  inp.style.background = 'rgba(0,212,255,0.08)';
+  inp.style.border = '1px solid #444';
+  inp.style.color = 'white';
+  inp.style.padding = '8px';
+  inp.style.borderRadius = '6px';
+  inp.style.resize = 'vertical';
+  inp.style.fontFamily = 'inherit';
+  inp.style.fontSize = '0.95rem';
+
+  elemento.replaceWith(inp);
+  inp.focus();
+
+  const salvarAnot = () => {
+    materias[idx].anotacao = inp.value.trim();
+    salvar();
+  };
+
+  inp.onblur = salvarAnot;
+  inp.onkeydown = e => {
+    if (e.ctrlKey && e.key === 'Enter') {
+      e.preventDefault();
+      salvarAnot();
+    }
+  };
+}
+
+// Primeira renderização
 renderizar();
 </script>
-
 </body>
 </html>
