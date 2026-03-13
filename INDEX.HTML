@@ -1,413 +1,156 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minha Mochila - Planner Profissional</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #d90429;
-            --primary-dark: #a1031f;
-            --accent: #ffcc00;
-            --bg: #0f0f1a;
-            --card-bg: rgba(30, 30, 60, 0.78);
-            --text: #f0f4ff;
-            --text-muted: #b0c4ff;
-            --success: #00d084;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Minha Mochila</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f0f1a;
+      color: #e0e0ff;
+      min-height: 100vh;
+      display: flex;
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    .mochila {
+      width: 260px;
+      background: #1a1a2e;
+      padding: 20px;
+      height: 100vh;
+      overflow-y: auto;
+      border-right: 1px solid #333;
+    }
 
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: linear-gradient(rgba(15,15,26,0.88), rgba(15,15,26,0.92)),
-                        url('https://images.unsplash.com/photo-1635805737708-6750956d5d6c?auto=format&fit=crop&q=90') center/cover no-repeat fixed;
-            color: var(--text);
-            min-height: 100vh;
-            padding-bottom: 3rem;
-        }
+    h2 {
+      margin: 0 0 16px 0;
+      color: #88f;
+      font-size: 1.4rem;
+      text-align: center;
+    }
 
-        header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            padding: 1.8rem 1rem;
-            text-align: center;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+    .entrada {
+      display: flex;
+      margin-bottom: 16px;
+      gap: 6px;
+    }
 
-        header h1 {
-            font-size: 2.1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.8rem;
-        }
+    input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #444;
+      border-radius: 6px;
+      background: #222;
+      color: white;
+      font-size: 1rem;
+    }
 
-        .container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            padding: 2rem 1.5rem;
-            max-width: 1600px;
-            margin: 0 auto;
-        }
+    button {
+      padding: 0 14px;
+      background: #4466ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
 
-        .disciplina {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 1.5rem;
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.12);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-        }
+    button:hover {
+      background: #5577ff;
+    }
 
-        .disciplina:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 16px 40px rgba(0,0,0,0.5);
-        }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
 
-        .disciplina h2 {
-            display: flex;
-            align-items: center;
-            gap: 0.9rem;
-            margin-bottom: 1.2rem;
-            font-size: 1.4rem;
-            color: var(--accent);
-        }
+    li {
+      padding: 12px 10px;
+      margin: 6px 0;
+      background: #25253f;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s;
+    }
 
-        .stats {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    li:hover {
+      background: #303050;
+    }
 
-        .progress {
-            height: 6px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 3px;
-            overflow: hidden;
-            flex: 1;
-            margin-left: 0.8rem;
-        }
+    li.riscado {
+      text-decoration: line-through;
+      color: #777;
+      background: #1e1e30;
+    }
 
-        .progress-bar {
-            height: 100%;
-            background: var(--success);
-            width: 0%;
-            transition: width 0.4s ease;
-        }
-
-        .aulas {
-            min-height: 80px;
-            margin-bottom: 1.2rem;
-        }
-
-        .aula {
-            background: rgba(255,255,255,0.08);
-            padding: 0.9rem 1.1rem;
-            margin: 0.6rem 0;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            transition: all 0.2s;
-        }
-
-        .aula.completed .texto {
-            text-decoration: line-through;
-            color: var(--text-muted);
-            opacity: 0.8;
-        }
-
-        .aula:hover {
-            background: rgba(255,255,255,0.14);
-        }
-
-        .texto {
-            flex: 1;
-            font-size: 1rem;
-        }
-
-        .actions button {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            cursor: pointer;
-            padding: 0.3rem;
-            transition: color 0.2s;
-        }
-
-        .actions button:hover { color: white; }
-        .edit   { color: var(--accent); }
-        .delete { color: var(--primary); }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 0.9rem;
-            margin: 0.6rem 0;
-            border: none;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.12);
-            color: white;
-            font-size: 1rem;
-        }
-
-        input[type="text"]::placeholder { color: rgba(255,255,255,0.55); }
-
-        button.add {
-            width: 100%;
-            padding: 0.9rem;
-            border: none;
-            border-radius: 10px;
-            background: var(--primary);
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        button.add:hover { background: var(--primary-dark); }
-
-        footer {
-            text-align: center;
-            padding: 1.5rem;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-top: 2rem;
-        }
-
-        @media (max-width: 600px) {
-            .container { grid-template-columns: 1fr; padding: 1.2rem; }
-            header h1 { font-size: 1.8rem; }
-        }
-    </style>
+    .principal {
+      flex: 1;
+      padding: 40px;
+    }
+  </style>
 </head>
 <body>
 
-<header>
-    <h1><i class="fa-solid fa-spider"></i> Minha Mochila - Planner</h1>
-</header>
+<div class="mochila">
+  <h2>Matérias</h2>
+  
+  <div class="entrada">
+    <input id="txt" placeholder="Digite a matéria..." autofocus>
+    <button onclick="adicionar()">+</button>
+  </div>
 
-<div class="container">
-    <!-- Matemática -->
-    <div class="disciplina" data-key="matematica">
-        <h2><i class="fa-solid fa-square-root-variable"></i> Matemática</h2>
-        <div class="stats">
-            <span>0 de 0 concluídas</span>
-            <div class="progress"><div class="progress-bar"></div></div>
-        </div>
-        <div class="aulas"></div>
-        <input type="text" class="input-aula" placeholder="Nova aula / conteúdo...">
-        <button class="add">+ Adicionar</button>
-    </div>
-
-    <!-- Português -->
-    <div class="disciplina" data-key="portugues">
-        <h2><i class="fa-solid fa-book"></i> Português</h2>
-        <div class="stats">
-            <span>0 de 0 concluídas</span>
-            <div class="progress"><div class="progress-bar"></div></div>
-        </div>
-        <div class="aulas"></div>
-        <input type="text" class="input-aula" placeholder="Nova aula / conteúdo...">
-        <button class="add">+ Adicionar</button>
-    </div>
-
-    <!-- História -->
-    <div class="disciplina" data-key="historia">
-        <h2><i class="fa-solid fa-landmark"></i> História</h2>
-        <div class="stats">
-            <span>0 de 0 concluídas</span>
-            <div class="progress"><div class="progress-bar"></div></div>
-        </div>
-        <div class="aulas"></div>
-        <input type="text" class="input-aula" placeholder="Nova aula / conteúdo...">
-        <button class="add">+ Adicionar</button>
-    </div>
-
-    <!-- Outras disciplinas seguem o mesmo padrão -->
-    <div class="disciplina" data-key="geografia">
-        <h2><i class="fa-solid fa-earth-americas"></i> Geografia</h2>
-        <div class="stats"><span>0 de 0 concluídas</span><div class="progress"><div class="progress-bar"></div></div></div>
-        <div class="aulas"></div>
-        <input type="text" class="input-aula" placeholder="Nova aula / conteúdo...">
-        <button class="add">+ Adicionar</button>
-    </div>
-
-    <div class="disciplina" data-key="ciencias">
-        <h2><i class="fa-solid fa-flask-vial"></i> Ciências</h2>
-        <div class="stats"><span>0 de 0 concluídas</span><div class="progress"><div class="progress-bar"></div></div></div>
-        <div class="aulas"></div>
-        <input type="text" class="input-aula" placeholder="Nova aula / conteúdo...">
-        <button class="add">+ Adicionar</button>
-    </div>
-
-    <div class="disciplina" data-key="ingles">
-        <h2><i class="fa-solid fa-language"></i> Inglês</h2>
-        <div class="stats"><span>0 de 0 concluídas</span><div class="progress"><div class="progress-bar"></div></div></div>
-        <div class="aulas"></div>
-        <input type="text" class="input-aula" placeholder="Nova aula / conteúdo...">
-        <button class="add">+ Adicionar</button>
-    </div>
-
-    <div class="disciplina" data-key="programacao">
-        <h2><i class="fa-solid fa-code"></i> Programação</h2>
-        <div class="stats"><span>0 de 0 concluídas</span><div class="progress"><div class="progress-bar"></div></div></div>
-        <div class="aulas"></div>
-        <input type="text" class="input-aula" placeholder="Nova aula / conteúdo...">
-        <button class="add">+ Adicionar</button>
-    </div>
-
-    <div class="disciplina" data-key="robotica">
-        <h2><i class="fa-solid fa-robot"></i> Robótica</h2>
-        <div class="stats"><span>0 de 0 concluídas</span><div class="progress"><div class="progress-bar"></div></div></div>
-        <div class="aulas"></div>
-        <input type="text" class="input-aula" placeholder="Nova aula / conteúdo...">
-        <button class="add">+ Adicionar</button>
-    </div>
-
-    <div class="disciplina" data-key="ia">
-        <h2><i class="fa-solid fa-brain"></i> Inteligência Artificial</h2>
-        <div class="stats"><span>0 de 0 concluídas</span><div class="progress"><div class="progress-bar"></div></div></div>
-        <div class="aulas"></div>
-        <input type="text" class="input-aula" placeholder="Nova aula / conteúdo...">
-        <button class="add">+ Adicionar</button>
-    </div>
+  <ul id="lista"></ul>
 </div>
 
-<footer>
-    <i class="fa-solid fa-spider"></i> Minha Mochila • Feito com foco e disciplina • 2026
-</footer>
+<div class="principal">
+  <h1>Sua mochila de estudos</h1>
+  <p>Clique nas matérias para marcar como concluída.</p>
+</div>
 
 <script>
-    const disciplinas = document.querySelectorAll('.disciplina');
+const input = document.getElementById('txt');
+const lista = document.getElementById('lista');
 
-    function saveData() {
-        const data = {};
-        disciplinas.forEach(div => {
-            const key = div.dataset.key;
-            const aulas = [];
-            div.querySelectorAll('.aula').forEach(aula => {
-                aulas.push({
-                    text: aula.querySelector('.texto').textContent,
-                    done: aula.classList.contains('completed')
-                });
-            });
-            data[key] = aulas;
-        });
-        localStorage.setItem('minha-mochila', JSON.stringify(data));
-    }
+let materias = JSON.parse(localStorage.getItem('mochila')) || [];
 
-    function loadData() {
-        const saved = localStorage.getItem('minha-mochila');
-        if (!saved) return;
+function salvar() {
+  localStorage.setItem('mochila', JSON.stringify(materias));
+  renderizar();
+}
 
-        const data = JSON.parse(saved);
-        disciplinas.forEach(div => {
-            const key = div.dataset.key;
-            const container = div.querySelector('.aulas');
-            container.innerHTML = '';
+function renderizar() {
+  lista.innerHTML = '';
+  materias.forEach((item, i) => {
+    const li = document.createElement('li');
+    li.textContent = item.texto;
+    if (item.feito) li.classList.add('riscado');
+    
+    li.onclick = () => {
+      materias[i].feito = !materias[i].feito;
+      salvar();
+    };
+    
+    lista.appendChild(li);
+  });
+}
 
-            if (data[key]) {
-                data[key].forEach(item => {
-                    createAulaElement(container, item.text, item.done);
-                });
-            }
-            updateStats(div);
-        });
-    }
+function adicionar() {
+  const texto = input.value.trim();
+  if (!texto) return;
+  
+  materias.push({ texto, feito: false });
+  input.value = '';
+  salvar();
+}
 
-    function createAulaElement(container, texto, done = false) {
-        const div = document.createElement('div');
-        div.className = 'aula';
-        if (done) div.classList.add('completed');
+input.onkeypress = e => {
+  if (e.key === 'Enter') adicionar();
+};
 
-        div.innerHTML = `
-            <input type="checkbox" ${done ? 'checked' : ''} aria-label="Marcar como concluída">
-            <span class="texto">${texto}</span>
-            <div class="actions">
-                <button class="edit" aria-label="Editar"><i class="fa-solid fa-pen"></i></button>
-                <button class="delete" aria-label="Excluir"><i class="fa-solid fa-trash"></i></button>
-            </div>
-        `;
-
-        // Checkbox
-        div.querySelector('input[type="checkbox"]').addEventListener('change', e => {
-            div.classList.toggle('completed', e.target.checked);
-            updateStats(div.closest('.disciplina'));
-            saveData();
-        });
-
-        // Editar
-        div.querySelector('.edit').addEventListener('click', () => {
-            const span = div.querySelector('.texto');
-            const novoTexto = prompt('Editar aula:', span.textContent);
-            if (novoTexto !== null && novoTexto.trim()) {
-                span.textContent = novoTexto.trim();
-                saveData();
-            }
-        });
-
-        // Deletar
-        div.querySelector('.delete').addEventListener('click', () => {
-            if (confirm('Tem certeza que deseja excluir esta aula?')) {
-                div.remove();
-                updateStats(div.closest('.disciplina'));
-                saveData();
-            }
-        });
-
-        container.appendChild(div);
-    }
-
-    function updateStats(disciplinaDiv) {
-        const aulas = disciplinaDiv.querySelectorAll('.aula');
-        const concluidas = disciplinaDiv.querySelectorAll('.aula.completed').length;
-        const total = aulas.length;
-
-        const stats = disciplinaDiv.querySelector('.stats span');
-        stats.textContent = `${concluidas} de ${total} concluídas`;
-
-        const progressBar = disciplinaDiv.querySelector('.progress-bar');
-        progressBar.style.width = total ? `${(concluidas / total) * 100}%` : '0%';
-    }
-
-    // Adicionar nova aula
-    disciplinas.forEach(div => {
-        const btn = div.querySelector('.add');
-        const input = div.querySelector('.input-aula');
-
-        btn.addEventListener('click', () => addAula(div, input));
-        input.addEventListener('keypress', e => {
-            if (e.key === 'Enter') addAula(div, input);
-        });
-    });
-
-    function addAula(disciplinaDiv, input) {
-        const texto = input.value.trim();
-        if (!texto) return;
-
-        const container = disciplinaDiv.querySelector('.aulas');
-        createAulaElement(container, texto);
-        input.value = '';
-        updateStats(disciplinaDiv);
-        saveData();
-    }
-
-    // Inicializar
-    loadData();
+// primeira carga
+renderizar();
 </script>
+
 </body>
 </html>
