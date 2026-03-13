@@ -3,75 +3,82 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Minha Mochila</title>
+  <title>Minha Mochila - Lucas</title>
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #0f0f1a;
-      color: #e0e0ff;
+      background: #0d1117;
+      color: #c9d1d9;
       min-height: 100vh;
       display: flex;
     }
     .mochila {
-      width: 260px;
-      background: #1a1a2e;
+      width: 280px;
+      background: #161b22;
       padding: 20px;
       height: 100vh;
       overflow-y: auto;
-      border-right: 1px solid #333;
+      border-right: 1px solid #30363d;
     }
     h2 {
-      margin: 0 0 16px 0;
-      color: #88f;
-      font-size: 1.4rem;
+      margin: 0 0 20px;
+      color: #58a6ff;
+      font-size: 1.5rem;
       text-align: center;
     }
     .entrada {
       display: flex;
-      margin-bottom: 16px;
-      gap: 6px;
+      gap: 8px;
+      margin-bottom: 20px;
     }
-    input {
+    input[type="text"] {
       flex: 1;
-      padding: 10px;
-      border: 1px solid #444;
+      padding: 10px 12px;
+      border: 1px solid #30363d;
       border-radius: 6px;
-      background: #222;
-      color: white;
+      background: #0d1117;
+      color: #c9d1d9;
       font-size: 1rem;
     }
     button {
-      padding: 0 14px;
-      background: #4466ff;
+      padding: 0 16px;
+      background: #238636;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      font-weight: bold;
     }
     button:hover {
-      background: #5577ff;
+      background: #2ea043;
     }
     ul {
       list-style: none;
       padding: 0;
+      margin: 0;
     }
     li {
-      padding: 12px 10px;
-      margin: 6px 0;
-      background: #25253f;
+      padding: 12px 14px;
+      margin: 8px 0;
+      background: #21262d;
       border-radius: 6px;
       cursor: pointer;
       user-select: none;
-      transition: all 0.15s;
+      transition: all 0.2s;
+      position: relative;
     }
     li:hover {
-      background: #303050;
+      background: #30363d;
     }
     li.riscado {
       text-decoration: line-through;
-      color: #777;
-      background: #1e1e30;
+      color: #8b949e;
+      background: #1c2526;
+    }
+    li.editando {
+      background: #2d3748;
+      padding: 8px;
     }
     .principal {
       flex: 1;
@@ -86,15 +93,15 @@
   
   <div class="entrada">
     <input id="txt" placeholder="Digite a matéria..." autofocus>
-    <button id="btnAdd">+</button>
+    <button id="btnAdd">Adicionar</button>
   </div>
 
   <ul id="lista"></ul>
 </div>
 
 <div class="principal">
-  <h1>Sua mochila de estudos</h1>
-  <p>Clique nas matérias para marcar como concluída.</p>
+  <h1>Mochila de Estudos</h1>
+  <p>Clique = marcar/desmarcar • Duplo clique = editar o nome</p>
 </div>
 
 <script>
@@ -102,25 +109,68 @@ const input = document.getElementById('txt');
 const btnAdd = document.getElementById('btnAdd');
 const lista = document.getElementById('lista');
 
-let materias = JSON.parse(localStorage.getItem('mochila')) || [];
+let materias = JSON.parse(localStorage.getItem('mochila2025')) || [];
 
 function salvar() {
-  localStorage.setItem('mochila', JSON.stringify(materias));
+  localStorage.setItem('mochila2025', JSON.stringify(materias));
   renderizar();
 }
 
 function renderizar() {
   lista.innerHTML = '';
+
   materias.forEach((item, i) => {
     const li = document.createElement('li');
     li.textContent = item.texto;
-    if (item.feito) li.classList.add('riscado');
-    
-    li.onclick = () => {
-      materias[i].feito = !materias[i].feito;
-      salvar();
-    };
-    
+
+    if (item.feito) {
+      li.classList.add('riscado');
+    }
+
+    // Clique simples → marcar/desmarcar
+    li.addEventListener('click', (e) => {
+      if (e.detail === 1) {  // evita acionar no duplo clique
+        materias[i].feito = !materias[i].feito;
+        salvar();
+      }
+    });
+
+    // Duplo clique → editar
+    li.addEventListener('dblclick', () => {
+      const antigoTexto = item.texto;
+      li.classList.add('editando');
+      li.innerHTML = '';
+
+      const editInput = document.createElement('input');
+      editInput.type = 'text';
+      editInput.value = antigoTexto;
+      editInput.style.width = '100%';
+      editInput.style.padding = '8px';
+      editInput.style.borderRadius = '4px';
+      editInput.style.border = '1px solid #58a6ff';
+      editInput.style.background = '#0d1117';
+      editInput.style.color = '#c9d1d9';
+
+      const salvarEdit = () => {
+        const novoTexto = editInput.value.trim();
+        if (novoTexto) {
+          materias[i].texto = novoTexto;
+        }
+        salvar();
+      };
+
+      editInput.onblur = salvarEdit;
+      editInput.onkeypress = (e) => {
+        if (e.key === 'Enter') {
+          salvarEdit();
+        }
+      };
+
+      li.appendChild(editInput);
+      editInput.focus();
+      editInput.select();
+    });
+
     lista.appendChild(li);
   });
 }
@@ -128,10 +178,10 @@ function renderizar() {
 function adicionar() {
   const texto = input.value.trim();
   if (!texto) return;
-  
+
   materias.push({ texto, feito: false });
   input.value = '';
-  input.focus();           // volta o foco pro input (melhor usabilidade)
+  input.focus();
   salvar();
 }
 
@@ -139,12 +189,10 @@ function adicionar() {
 btnAdd.addEventListener('click', adicionar);
 
 input.addEventListener('keypress', e => {
-  if (e.key === 'Enter') {
-    adicionar();
-  }
+  if (e.key === 'Enter') adicionar();
 });
 
-// Carrega na abertura
+// Primeira renderização
 renderizar();
 </script>
 
