@@ -3,386 +3,246 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mochila Black</title>
+<title>Mochila Digital</title>
 
 <style>
 body{
-margin:0;
-font-family:Arial, Helvetica, sans-serif;
-background:#0f172a;
-color:white;
+  margin:0;
+  font-family:Arial;
+  background:#111;
+  color:#000;
 }
 
-/* FUNDO */
-.bg{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background-size:cover;
-background-position:center;
-z-index:-1;
-filter:brightness(0.4);
-}
-
+/* HEADER */
 header{
-background:#020617;
-padding:15px;
-text-align:center;
-font-size:22px;
-font-weight:bold;
-border-bottom:2px solid #2563eb;
+  background:#000;
+  color:white;
+  text-align:center;
+  padding:15px;
 }
 
-.container{
-display:flex;
-height:calc(100vh - 70px);
-backdrop-filter: blur(4px);
+/* MENU */
+.menu{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  background:#222;
+  padding:10px;
+}
+.menu button{
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
 }
 
-.sidebar{
-width:260px;
-background:rgba(2,6,23,0.85);
-border-right:1px solid #1e3a8a;
-padding:15px;
-overflow:auto;
+/* ABAS */
+.aba{display:none; padding:15px;}
+.ativa{display:block;}
+
+/* MOCHILA */
+#materias{
+  min-height:300px;
+  background-size:cover;
+  background-position:center;
+  transition:0.3s;
 }
 
-.main{
-flex:1;
-padding:20px;
-background:rgba(2,6,23,0.6);
+/* BILHETE DE MATÉRIA */
+.materia{
+  background:white;
+  padding:10px;
+  margin:10px 0;
+  border-radius:10px;
+}
+.materia textarea{
+  width:100%;
+  height:80px;
+  border-radius:8px;
 }
 
-.materia,.pagina{
-background:#020617;
-border:1px solid #1e3a8a;
-padding:10px;
-border-radius:8px;
-margin-bottom:6px;
-cursor:pointer;
+/* FOTOS */
+img{
+  max-width:120px;
+  margin:5px;
+  border-radius:10px;
 }
 
-textarea{
-width:100%;
-height:45vh;
-padding:15px;
-border-radius:10px;
-border:1px solid #1e3a8a;
-background:#020617;
-color:white;
+/* MEMES FEED (TIKTOK STYLE) */
+#feed{
+  height:100vh;
+  overflow-y:scroll;
+  scroll-snap-type:y mandatory;
 }
 
-input{
-width:100%;
-padding:10px;
-border-radius:8px;
-border:1px solid #1e3a8a;
-background:#020617;
-color:white;
-margin-bottom:8px;
+.item{
+  height:100vh;
+  scroll-snap-align:start;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:black;
 }
 
-button{
-width:100%;
-padding:10px;
-background:#2563eb;
-border:none;
-color:white;
-border-radius:8px;
-cursor:pointer;
-margin-bottom:5px;
+.item img, .item video{
+  max-width:100%;
+  max-height:100%;
 }
 
-.meme{
-margin-bottom:15px;
-background:#020617;
-padding:10px;
-border-radius:10px;
-border:1px solid #1e3a8a;
-cursor:pointer;
-}
-
-.meme img,.meme video{
-width:100%;
-border-radius:8px;
-}
-
-.viewer{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:black;
-display:none;
-align-items:center;
-justify-content:center;
-z-index:999;
-}
-
-.viewer img,.viewer video{
-max-width:90%;
-max-height:90%;
-}
-
-.close{
-position:absolute;
-top:20px;
-right:30px;
-font-size:30px;
-cursor:pointer;
+/* BOTÃO FIXO MEME */
+.uploadMeme{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  padding:10px;
+  border-radius:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="bg" id="bg"></div>
+<header>
+<h1>🎒 Mochila Digital</h1>
+</header>
 
-<header>🎒 Mochila Black</header>
+<div class="menu">
+<button onclick="trocar('materias')">📚 Mochila</button>
+<button onclick="trocar('fotos')">🖼️ Fotos</button>
+<button onclick="trocar('memes')">🎬 Memes</button>
+<button onclick="trocar('config')">⚙️ Fundo</button>
+</div>
 
-<div class="container">
+<div id="materias" class="aba ativa">
 
-<div class="sidebar">
+<h2>📚 Matérias</h2>
 
-<h3>Plano de fundo</h3>
-<input type="file" onchange="setFundo(event)">
-<button onclick="removerFundo()">Remover</button>
-
-<hr>
-
-<h3>Matérias</h3>
-<input id="materiaInput" placeholder="Nova matéria">
+<input id="materiaNome" placeholder="Nome da matéria">
 <button onclick="addMateria()">Adicionar</button>
 
-<div id="materias"></div>
-
-<hr>
-
-<h3>Folhas</h3>
-<input id="paginaInput" placeholder="Nova folha">
-<button onclick="addPagina()">Adicionar</button>
-
-<div id="paginas"></div>
-
-<hr>
-
-<button onclick="abrirNotas()">Anotações</button>
-<button onclick="abrirMemes()">Memes</button>
+<div id="listaMaterias"></div>
 
 </div>
 
-<div class="main">
-
-<div id="notas">
-<textarea id="texto"></textarea>
-<br><br>
-<button onclick="salvar()">Salvar</button>
+<!-- FOTOS -->
+<div id="fotos" class="aba">
+<h2>🖼️ Fotos</h2>
+<input type="file" id="fotoInput" accept="image/*">
+<button onclick="addFoto()">Adicionar</button>
+<div id="galeria"></div>
 </div>
 
-<div id="memes" style="display:none">
+<!-- MEMES -->
+<div id="memes" class="aba">
 
-<input type="file" multiple accept="image/*,video/*" onchange="addMeme(event)">
-<br><br>
+<h2>🎬 Feed de Memes</h2>
 
-<div id="listaMemes"></div>
+<div id="feed"></div>
+
+<input type="file" id="memeInput" accept="image/*,video/*">
+<button class="uploadMeme" onclick="addMeme()">➕</button>
 
 </div>
 
-</div>
-
-</div>
-
-<div class="viewer" id="viewer">
-<div class="close" onclick="fechar()">✖</div>
-<div id="viewerConteudo"></div>
+<!-- CONFIG -->
+<div id="config" class="aba">
+<h2>⚙️ Fundo da Mochila</h2>
+<input type="file" accept="image/*" onchange="bg(event)">
 </div>
 
 <script>
-let dados=JSON.parse(localStorage.getItem("mochila"))||{
-materias:{},
-memes:[],
-fundo:null
+
+function trocar(id){
+  document.querySelectorAll('.aba').forEach(a=>a.classList.remove('ativa'));
+  document.getElementById(id).classList.add('ativa');
 }
 
-let materiaAtual=null
-let paginaAtual=null
-
-/* FUNDO */
-
-function setFundo(e){
-let file=e.target.files[0]
-let reader=new FileReader()
-
-reader.onload=function(){
-dados.fundo=reader.result
-salvarLocal()
-carregarFundo()
-}
-
-reader.readAsDataURL(file)
-}
-
-function carregarFundo(){
-if(dados.fundo){
-document.getElementById("bg").style.backgroundImage=
-`url(${dados.fundo})`
-}
-}
-
-function removerFundo(){
-dados.fundo=null
-salvarLocal()
-document.getElementById("bg").style.backgroundImage="none"
-}
-
-/* materias */
-
+/* =========================
+   MATÉRIAS COMO BILHETE
+========================= */
 function addMateria(){
-let nome=materiaInput.value
-if(!nome) return
+  const nome = document.getElementById('materiaNome');
+  if(!nome.value) return;
 
-dados.materias[nome]={}
-materiaInput.value=""
-salvarLocal()
-renderMaterias()
+  const div = document.createElement('div');
+  div.className="materia";
+
+  div.innerHTML=`
+    <h3 contenteditable="true">${nome.value}</h3>
+    <textarea placeholder="Escreva o que aconteceu na aula..."></textarea>
+    <button onclick="this.parentElement.remove()">🗑️ Excluir</button>
+  `;
+
+  document.getElementById('listaMaterias').appendChild(div);
+  nome.value="";
 }
 
-function renderMaterias(){
-materias.innerHTML=""
+/* =========================
+   FOTOS
+========================= */
+function addFoto(){
+  const input=document.getElementById('fotoInput');
+  const file=input.files[0];
+  if(!file) return;
 
-for(let m in dados.materias){
-let div=document.createElement("div")
-div.className="materia"
-div.innerText=m
-div.onclick=()=>selecionarMateria(m)
-materias.appendChild(div)
-}
-}
-
-function selecionarMateria(nome){
-materiaAtual=nome
-renderPaginas()
-}
-
-/* paginas */
-
-function addPagina(){
-if(!materiaAtual) return
-
-let nome=paginaInput.value
-if(!nome) return
-
-dados.materias[materiaAtual][nome]=""
-paginaInput.value=""
-salvarLocal()
-renderPaginas()
+  const r=new FileReader();
+  r.onload=e=>{
+    const img=document.createElement('img');
+    img.src=e.target.result;
+    document.getElementById('galeria').appendChild(img);
+  }
+  r.readAsDataURL(file);
 }
 
-function renderPaginas(){
-paginas.innerHTML=""
+/* =========================
+   MEMES TIKTOK STYLE
+========================= */
+function addMeme(){
+  const input=document.getElementById('memeInput');
+  const file=input.files[0];
+  if(!file) return;
 
-for(let p in dados.materias[materiaAtual]){
-let div=document.createElement("div")
-div.className="pagina"
-div.innerText=p
-div.onclick=()=>selecionarPagina(p)
-paginas.appendChild(div)
-}
-}
+  const r=new FileReader();
+  r.onload=e=>{
+    const div=document.createElement('div');
+    div.className="item";
 
-function selecionarPagina(nome){
-paginaAtual=nome
-texto.value=dados.materias[materiaAtual][nome]
-}
+    if(file.type.startsWith("video")){
+      div.innerHTML=`<video src="${e.target.result}" controls autoplay loop></video>`;
+    } else {
+      div.innerHTML=`<img src="${e.target.result}">`;
+    }
 
-/* salvar */
+    document.getElementById('feed').appendChild(div);
+  }
 
-function salvar(){
-if(!materiaAtual||!paginaAtual) return
-
-dados.materias[materiaAtual][paginaAtual]=texto.value
-salvarLocal()
-}
-
-/* abas */
-
-function abrirMemes(){
-notas.style.display="none"
-memes.style.display="block"
+  r.readAsDataURL(file);
+  input.value="";
 }
 
-function abrirNotas(){
-notas.style.display="block"
-memes.style.display="none"
+/* =========================
+   FUNDO
+========================= */
+function bg(e){
+  const file=e.target.files[0];
+  const r=new FileReader();
+
+  r.onload=ev=>{
+    document.getElementById('materias').style.backgroundImage=`url(${ev.target.result})`;
+    localStorage.setItem('bg',ev.target.result);
+  }
+
+  r.readAsDataURL(file);
 }
 
-/* memes */
-
-function addMeme(e){
-
-for(let file of e.target.files){
-
-let reader=new FileReader()
-
-reader.onload=function(){
-dados.memes.push({
-tipo:file.type,
-src:reader.result
-})
-
-salvarLocal()
-renderMemes()
+window.onload=()=>{
+  const bg=localStorage.getItem('bg');
+  if(bg){
+    document.getElementById('materias').style.backgroundImage=`url(${bg})`;
+  }
 }
 
-reader.readAsDataURL(file)
-
-}
-}
-
-function renderMemes(){
-listaMemes.innerHTML=""
-
-dados.memes.forEach(m=>{
-
-let div=document.createElement("div")
-div.className="meme"
-
-div.onclick=()=>{
-viewer.style.display="flex"
-
-if(m.tipo.startsWith("image")){
-viewerConteudo.innerHTML=`<img src="${m.src}">`
-}else{
-viewerConteudo.innerHTML=`<video controls autoplay src="${m.src}"></video>`
-}
-}
-
-if(m.tipo.startsWith("image")){
-div.innerHTML=`<img src="${m.src}">`
-}else{
-div.innerHTML=`<video src="${m.src}"></video>`
-}
-
-listaMemes.appendChild(div)
-
-})
-}
-
-function fechar(){
-viewer.style.display="none"
-}
-
-function salvarLocal(){
-localStorage.setItem("mochila",JSON.stringify(dados))
-}
-
-renderMaterias()
-renderMemes()
-carregarFundo()
 </script>
 
 </body>
-</html>
+</html> :coloca opcao de soons e adiciona som de toc pra cada letra do teclado q eu clicar exemplo: pulo do mario letra L, somic batendo letra I ,som de dano do roblox letra F,e varios outros sons engracados
