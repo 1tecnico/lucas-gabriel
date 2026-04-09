@@ -23,7 +23,7 @@ height:100%;
 background-size:cover;
 background-position:center;
 z-index:-1;
-filter:brightness(0.35);
+filter:brightness(0.4);
 }
 
 header{
@@ -43,7 +43,7 @@ backdrop-filter: blur(4px);
 
 .sidebar{
 width:260px;
-background:rgba(2,6,23,0.9);
+background:rgba(2,6,23,0.85);
 border-right:1px solid #1e3a8a;
 padding:15px;
 overflow:auto;
@@ -62,28 +62,16 @@ padding:10px;
 border-radius:8px;
 margin-bottom:6px;
 cursor:pointer;
-transition:0.2s;
-}
-
-.materia:hover,.pagina:hover{
-background:#020617;
-border-color:#2563eb;
-}
-
-.ativo{
-border:1px solid #2563eb;
-background:#020617;
 }
 
 textarea{
 width:100%;
-height:55vh;
+height:45vh;
 padding:15px;
 border-radius:10px;
 border:1px solid #1e3a8a;
 background:#020617;
 color:white;
-resize:none;
 }
 
 input{
@@ -105,10 +93,6 @@ color:white;
 border-radius:8px;
 cursor:pointer;
 margin-bottom:5px;
-}
-
-.delete{
-background:#dc2626;
 }
 
 .meme{
@@ -139,8 +123,8 @@ z-index:999;
 }
 
 .viewer img,.viewer video{
-max-width:95%;
-max-height:95%;
+max-width:90%;
+max-height:90%;
 }
 
 .close{
@@ -172,7 +156,6 @@ cursor:pointer;
 <h3>Matérias</h3>
 <input id="materiaInput" placeholder="Nova matéria">
 <button onclick="addMateria()">Adicionar</button>
-<button class="delete" onclick="deletarMateria()">Excluir Matéria</button>
 
 <div id="materias"></div>
 
@@ -181,7 +164,6 @@ cursor:pointer;
 <h3>Folhas</h3>
 <input id="paginaInput" placeholder="Nova folha">
 <button onclick="addPagina()">Adicionar</button>
-<button class="delete" onclick="deletarPagina()">Excluir Folha</button>
 
 <div id="paginas"></div>
 
@@ -195,7 +177,9 @@ cursor:pointer;
 <div class="main">
 
 <div id="notas">
-<textarea id="texto" oninput="autoSalvar()"></textarea>
+<textarea id="texto"></textarea>
+<br><br>
+<button onclick="salvar()">Salvar</button>
 </div>
 
 <div id="memes" style="display:none">
@@ -230,8 +214,6 @@ let paginaAtual=null
 
 function setFundo(e){
 let file=e.target.files[0]
-if(!file) return
-
 let reader=new FileReader()
 
 reader.onload=function(){
@@ -245,39 +227,27 @@ reader.readAsDataURL(file)
 
 function carregarFundo(){
 if(dados.fundo){
-bg.style.backgroundImage=`url(${dados.fundo})`
+document.getElementById("bg").style.backgroundImage=
+`url(${dados.fundo})`
 }
 }
 
 function removerFundo(){
 dados.fundo=null
 salvarLocal()
-bg.style.backgroundImage="none"
+document.getElementById("bg").style.backgroundImage="none"
 }
 
 /* materias */
 
 function addMateria(){
-let nome=materiaInput.value.trim()
+let nome=materiaInput.value
 if(!nome) return
 
-if(!dados.materias[nome])
 dados.materias[nome]={}
-
 materiaInput.value=""
 salvarLocal()
 renderMaterias()
-}
-
-function deletarMateria(){
-if(!materiaAtual) return
-delete dados.materias[materiaAtual]
-materiaAtual=null
-paginaAtual=null
-texto.value=""
-salvarLocal()
-renderMaterias()
-renderPaginas()
 }
 
 function renderMaterias(){
@@ -286,20 +256,14 @@ materias.innerHTML=""
 for(let m in dados.materias){
 let div=document.createElement("div")
 div.className="materia"
-if(m===materiaAtual) div.classList.add("ativo")
-
 div.innerText=m
 div.onclick=()=>selecionarMateria(m)
-
 materias.appendChild(div)
 }
 }
 
 function selecionarMateria(nome){
 materiaAtual=nome
-paginaAtual=null
-texto.value=""
-renderMaterias()
 renderPaginas()
 }
 
@@ -308,7 +272,7 @@ renderPaginas()
 function addPagina(){
 if(!materiaAtual) return
 
-let nome=paginaInput.value.trim()
+let nome=paginaInput.value
 if(!nome) return
 
 dados.materias[materiaAtual][nome]=""
@@ -317,29 +281,14 @@ salvarLocal()
 renderPaginas()
 }
 
-function deletarPagina(){
-if(!materiaAtual||!paginaAtual) return
-
-delete dados.materias[materiaAtual][paginaAtual]
-paginaAtual=null
-texto.value=""
-salvarLocal()
-renderPaginas()
-}
-
 function renderPaginas(){
 paginas.innerHTML=""
-
-if(!materiaAtual) return
 
 for(let p in dados.materias[materiaAtual]){
 let div=document.createElement("div")
 div.className="pagina"
-if(p===paginaAtual) div.classList.add("ativo")
-
 div.innerText=p
 div.onclick=()=>selecionarPagina(p)
-
 paginas.appendChild(div)
 }
 }
@@ -347,13 +296,13 @@ paginas.appendChild(div)
 function selecionarPagina(nome){
 paginaAtual=nome
 texto.value=dados.materias[materiaAtual][nome]
-renderPaginas()
 }
 
-/* salvar automático */
+/* salvar */
 
-function autoSalvar(){
+function salvar(){
 if(!materiaAtual||!paginaAtual) return
+
 dados.materias[materiaAtual][paginaAtual]=texto.value
 salvarLocal()
 }
@@ -426,14 +375,11 @@ function fechar(){
 viewer.style.display="none"
 }
 
-/* salvar */
-
 function salvarLocal(){
 localStorage.setItem("mochila",JSON.stringify(dados))
 }
 
 renderMaterias()
-renderPaginas()
 renderMemes()
 carregarFundo()
 </script>
