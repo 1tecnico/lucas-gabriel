@@ -1,1 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mochila Black</title>
 
+<style>
+body{
+margin:0;
+font-family:Arial, Helvetica, sans-serif;
+background:#0f172a;
+color:white;
+}
+
+/* FUNDO */
+.bg{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background-size:cover;
+background-position:center;
+z-index:-1;
+filter:brightness(0.35);
+}
+
+header{
+background:#020617;
+padding:15px;
+text-align:center;
+font-size:22px;
+font-weight:bold;
+border-bottom:2px solid #2563eb;
+}
+
+.container{
+display:flex;
+height:calc(100vh - 70px);
+backdrop-filter: blur(4px);
+}
+
+.sidebar{
+width:260px;
+background:rgba(2,6,23,0.9);
+border-right:1px solid #1e3a8a;
+padding:15px;
+overflow:auto;
+}
+
+.main{
+flex:1;
+padding:20px;
+background:rgba(2,6,23,0.6);
+}
+
+.materia,.pagina{
+background:#020617;
+border:1px solid #1e3a8a;
+padding:10px;
+border-radius:8px;
+margin-bottom:6px;
+cursor:pointer;
+transition:0.2s;
+}
+
+.materia:hover,.pagina:hover{
+background:#020617;
+border-color:#2563eb;
+}
+
+.ativo{
+border:1px solid #2563eb;
+background:#020617;
+}
+
+textarea{
+width:100%;
+height:55vh;
+padding:15px;
+border-radius:10px;
+border:1px solid #1e3a8a;
+background:#020617;
+color:white;
+resize:none;
+}
+
+input{
+width:100%;
+padding:10px;
+border-radius:8px;
+border:1px solid #1e3a8a;
+background:#020617;
+color:white;
+margin-bottom:8px;
+}
+
+button{
+width:100%;
+padding:10px;
+background:#2563eb;
+border:none;
+color:white;
+border-radius:8px;
+cursor:pointer;
+margin-bottom:5px;
+}
+
+.delete{
+background:#dc2626;
+}
+
+.meme{
+margin-bottom:15px;
+background:#020617;
+padding:10px;
+border-radius:10px;
+border:1px solid #1e3a8a;
+cursor:pointer;
+}
+
+.meme img,.meme video{
+width:100%;
+border-radius:8px;
+}
+
+.viewer{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:black;
+display:none;
+align-items:center;
+justify-content:center;
+z-index:999;
+}
+
+.viewer img,.viewer video{
+max-width:95%;
+max-height:95%;
+}
+
+.close{
+position:absolute;
+top:20px;
+right:30px;
+font-size:30px;
+cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="bg" id="bg"></div>
+
+<header>🎒 Mochila Black</header>
+
+<div class="container">
+
+<div class="sidebar">
+
+<h3>Plano de fundo</h3>
+<input type="file" onchange="setFundo(event)">
+<button onclick="removerFundo()">Remover</button>
+
+<hr>
+
+<h3>Matérias</h3>
+<input id="materiaInput" placeholder="Nova matéria">
+<button onclick="addMateria()">Adicionar</button>
+<button class="delete" onclick="deletarMateria()">Excluir Matéria</button>
+
+<div id="materias"></div>
+
+<hr>
+
+<h3>Folhas</h3>
+<input id="paginaInput" placeholder="Nova folha">
+<button onclick="addPagina()">Adicionar</button>
+<button class="delete" onclick="deletarPagina()">Excluir Folha</button>
+
+<div id="paginas"></div>
+
+<hr>
+
+<button onclick="abrirNotas()">Anotações</button>
+<button onclick="abrirMemes()">Memes</button>
+
+</div>
+
+<div class="main">
+
+<div id="notas">
+<textarea id="texto" oninput="autoSalvar()"></textarea>
+</div>
+
+<div id="memes" style="display:none">
+
+<input type="file" multiple accept="image/*,video/*" onchange="addMeme(event)">
+<br><br>
+
+<div id="listaMemes"></div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="viewer" id="viewer">
+<div class="close" onclick="fechar()">✖</div>
+<div id="viewerConteudo"></div>
+</div>
+
+<script>
+let dados=JSON.parse(localStorage.getItem("mochila"))||{
+materias:{},
+memes:[],
+fundo:null
+}
+
+let materiaAtual=null
+let paginaAtual=null
+
+/* FUNDO */
+
+function setFundo(e){
+let file=e.target.files[0]
+if(!file) return
+
+let reader=new FileReader()
+
+reader.onload=function(){
+dados.fundo=reader.result
+salvarLocal()
+carregarFundo()
+}
+
+reader.readAsDataURL(file)
+}
+
+function carregarFundo(){
+if(dados.fundo){
+bg.style.backgroundImage=`url(${dados.fundo})`
+}
+}
+
+function removerFundo(){
+dados.fundo=null
+salvarLocal()
+bg.style.backgroundImage="none"
+}
+
+/* materias */
+
+function addMateria(){
+let nome=materiaInput.value.trim()
+if(!nome) return
+
+if(!dados.materias[nome])
+dados.materias[nome]={}
+
+materiaInput.value=""
+salvarLocal()
+renderMaterias()
+}
+
+function deletarMateria(){
+if(!materiaAtual) return
+delete dados.materias[materiaAtual]
+materiaAtual=null
+paginaAtual=null
+texto.value=""
+salvarLocal()
+renderMaterias()
+renderPaginas()
+}
+
+function renderMaterias(){
+materias.innerHTML=""
+
+for(let m in dados.materias){
+let div=document.createElement("div")
+div.className="materia"
+if(m===materiaAtual) div.classList.add("ativo")
+
+div.innerText=m
+div.onclick=()=>selecionarMateria(m)
+
+materias.appendChild(div)
+}
+}
+
+function selecionarMateria(nome){
+materiaAtual=nome
+paginaAtual=null
+texto.value=""
+renderMaterias()
+renderPaginas()
+}
+
+/* paginas */
+
+function addPagina(){
+if(!materiaAtual) return
+
+let nome=paginaInput.value.trim()
+if(!nome) return
+
+dados.materias[materiaAtual][nome]=""
+paginaInput.value=""
+salvarLocal()
+renderPaginas()
+}
+
+function deletarPagina(){
+if(!materiaAtual||!paginaAtual) return
+
+delete dados.materias[materiaAtual][paginaAtual]
+paginaAtual=null
+texto.value=""
+salvarLocal()
+renderPaginas()
+}
+
+function renderPaginas(){
+paginas.innerHTML=""
+
+if(!materiaAtual) return
+
+for(let p in dados.materias[materiaAtual]){
+let div=document.createElement("div")
+div.className="pagina"
+if(p===paginaAtual) div.classList.add("ativo")
+
+div.innerText=p
+div.onclick=()=>selecionarPagina(p)
+
+paginas.appendChild(div)
+}
+}
+
+function selecionarPagina(nome){
+paginaAtual=nome
+texto.value=dados.materias[materiaAtual][nome]
+renderPaginas()
+}
+
+/* salvar automático */
+
+function autoSalvar(){
+if(!materiaAtual||!paginaAtual) return
+dados.materias[materiaAtual][paginaAtual]=texto.value
+salvarLocal()
+}
+
+/* abas */
+
+function abrirMemes(){
+notas.style.display="none"
+memes.style.display="block"
+}
+
+function abrirNotas(){
+notas.style.display="block"
+memes.style.display="none"
+}
+
+/* memes */
+
+function addMeme(e){
+
+for(let file of e.target.files){
+
+let reader=new FileReader()
+
+reader.onload=function(){
+dados.memes.push({
+tipo:file.type,
+src:reader.result
+})
+
+salvarLocal()
+renderMemes()
+}
+
+reader.readAsDataURL(file)
+
+}
+}
+
+function renderMemes(){
+listaMemes.innerHTML=""
+
+dados.memes.forEach(m=>{
+
+let div=document.createElement("div")
+div.className="meme"
+
+div.onclick=()=>{
+viewer.style.display="flex"
+
+if(m.tipo.startsWith("image")){
+viewerConteudo.innerHTML=`<img src="${m.src}">`
+}else{
+viewerConteudo.innerHTML=`<video controls autoplay src="${m.src}"></video>`
+}
+}
+
+if(m.tipo.startsWith("image")){
+div.innerHTML=`<img src="${m.src}">`
+}else{
+div.innerHTML=`<video src="${m.src}"></video>`
+}
+
+listaMemes.appendChild(div)
+
+})
+}
+
+function fechar(){
+viewer.style.display="none"
+}
+
+/* salvar */
+
+function salvarLocal(){
+localStorage.setItem("mochila",JSON.stringify(dados))
+}
+
+renderMaterias()
+renderPaginas()
+renderMemes()
+carregarFundo()
+</script>
+
+</body>
+</html>
